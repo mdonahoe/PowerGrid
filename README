@@ -1,0 +1,29 @@
+Solve PowerGrid using maths
+
+
+1. determine player order
+2. power plant auction
+3. purchase resources
+4. build cities
+5. bureaucracy
+
+Data:
+1. network
+2. power plants
+3. number/prices/restock resources
+4. payment prices/cities
+5. step criteria
+6. "rules"
+
+
+TODO
+
+1. __str__ methods for objects
+2. better ui for whose turn it is
+3. block city purchases
+4. adjust to rule changes with more players
+5. steps 2,3
+6. AI
+7. ?
+8. profit
+
