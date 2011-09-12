@@ -8,6 +8,8 @@ class Player(object):
         self.power_plants = []
         self.cities = []
         self.game = None #set by game
+    def __str__(self):
+        return '%s $%s' % (self.name, self.money)
     def buy_power_plant(self,plant,price):
         print price
         self.money -= price
@@ -26,7 +28,7 @@ class Player(object):
         if not self.power_plants: return 0
         return max(p.price for p in self.power_plants)
     def power_cities(self):
-        plants_resources = self.power_plants_to_use(self)
+        plants_resources = self.power_plants_to_use()
         city_count = 0
         for p,rs in plants_resources:
             p.consume(rs)
@@ -38,6 +40,10 @@ class Player(object):
         for p in power_plants:
             if p.price==price: return p
         return None
+    def can_buy_resource(self, r):
+        for p in self.power_plants:
+            if p.can_add_resource(r): return True
+        return False
     #SUBCLASS STUFF
     def choose_power_plant_to_discard(self):
         assert(False)
@@ -95,11 +101,17 @@ class HumanPlayer(Player):
                 discards.append(r)
         return discards
     def initial_bid(self,bidders):
-        print self.game.power_plant_market.visible
-        print bidders
-        print 'choose a power plant'
+        print 'Actual'
+        for p in self.game.power_plant_market.actual():
+            print '\t%s' % p
+        print 'Future'
+        for p in self.game.power_plant_market.future():
+            print '\t%s' % p
+        print 'Other bidders'
+        for p in bidders: print '\t%s' % p
+        print 'Choose a power plant'
         print '0 to pass'
-        p = self.get_power_plant(True,self.game.power_plant_market.visible[:4])
+        p = self.get_power_plant(True,self.game.power_plant_market.actual())
         if not p: return None
         if p.price > self.money:
             print "too 'spensive... lose"
@@ -130,9 +142,12 @@ class HumanPlayer(Player):
         return bid
 
     def buy_resources(self):
-        print self.game.resource_market
+        print 'Resource Market'
+        for r,m in self.game.resource_market.iteritems():
+            print '\t %s' % m
         rs = []
         for r,m in self.game.resource_market.iteritems():
+            if not self.can_buy_resource(r): continue
             print 'Amount of %s to buy' % r
             n = int(raw_input(':'))
             price = m.price_for_n(n)
@@ -148,16 +163,24 @@ class HumanPlayer(Player):
         self.game.return_resources(discards)
 
     def build_cities(self):
-        print self.game.grid
+        print 'Build cities %s' % self.name
         while 1:
-            name = raw_input('enter city name:')
-            if name not in self.game.grid.cities: continue
+            available = []
+            for price,city in self.game.grid.price_sorted(self.cities):
+                available.append(city)
+                print '\t$%s %s' %(price,city)
+            name = raw_input('city name or (q)uit:')
+            if name == 'q': return
+            if name not in available:
+                print 'no match'
+                continue
             city = self.game.grid.cities[name]
             price = self.game.grid.price_for_city(name,self.cities)
             if price > self.money:
                 print 'you tried to spent too much. done'
                 return
             self.cities.append(city)
+            city.buy(self)
             self.money -= price
     def power_plants_to_use(self):
         #todo, let them redistribute

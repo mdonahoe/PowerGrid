@@ -5,6 +5,8 @@ import random
 import constants
 import powerplant
 
+class SupplyError(Exception): pass
+
 class PowerPlantMarket(object):
     def __init__(self):
         ps = [powerplant.PowerPlant(*args) for args in constants.powerplants]
@@ -15,7 +17,7 @@ class PowerPlantMarket(object):
         self.visible = ps[:8]
 
     def draw(self):
-        p = self.deck.pop()
+        p = self.deck.pop(0)
         self.visible.append(p)
         self.visible.sort(lambda a,b: cmp(a.price,b.price))
         assert(len(self.visible) == 8)
@@ -28,7 +30,7 @@ class PowerPlantMarket(object):
         self.visible.remove(powerplant)
         self.draw()
     def cycle_deck(self):
-        deck.append(self.visible.pop())
+        self.deck.append(self.visible.pop())
         self.draw()
 
 
@@ -43,16 +45,19 @@ class ResourceSubMarket(object):
         self.bucket_size = bucket_size
         self.bucket_prices = bucket_prices
         self.step_vars = step_vars
+    def __str__(self):
+        return '$%s/%s' % (self.current_price(), self.resource)
     @property
     def resupply_rate(self):
         return self.step_vars.get_resupply_rate(self.resource)
     def current_price(self,supply=None):
         if supply is None: supply = self.supply
-        assert(supply>0)
+        assert(supply>=0)
+        if supply == 0: raise SupplyError()
         b = -int(math.ceil(1.0*supply / self.bucket_size))
         return self.bucket_prices[b]
     def price_for_n(self,n):
-        assert(n <= self.supply)
+        if n > self.supply: raise SupplyError()
         return sum(self.current_price(self.supply - i) for i in range(n))
     def resupply(self):
         resupply = min(self.resupply_rate,self.available)
