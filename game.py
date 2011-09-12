@@ -36,7 +36,7 @@ class Game(object):
             return (cmp(len(a.cities),len(b.cities))
                     or cmp(a.get_highest_power_plant(),
                            b.get_highest_power_plant()))
-        self.players.sort(compare_players)
+        self.players.sort(compare_players,reverse=True)
     def buy_resources(self):
         for p in reversed(self.players):
             p.buy_resources()
