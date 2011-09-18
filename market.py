@@ -33,9 +33,6 @@ class PowerPlantMarket(object):
         self.deck.append(self.visible.pop())
         self.draw()
 
-
-
-
 class ResourceSubMarket(object):
     def __init__(self,resource,initial_supply,bucket_size,bucket_prices,step_vars):
         self.resource = resource

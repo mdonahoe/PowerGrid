@@ -1,12 +1,9 @@
-
-
-
 class PowerPlant(object):
     def __init__(self,price,capacity,accepts,rate):
-        self.capacity = capacity
-        self.price = price
-        self.rate = rate
-        self.store = dict([(r,0) for r in accepts.split('/')])
+        self.capacity = capacity # number of cities it can power
+        self.price = price # starting price for this powerplant
+        self.rate = rate # number of resources required to power it
+        self.store = dict([(r,0) for r in accepts.split('/')]) # current resource allotment
     def stock(self, resources):
         assert(len(resources)+sum(self.store.values()) <= self.rate*2)
         for r in resources:
@@ -32,6 +29,11 @@ class PowerPlant(object):
         if len(self.store) == 1: return True
         if len(k for k,v in self.store.iteritems() if v)==1: return True
         return False
+    def resources_needed(self):
+        return self.rate - sum(self.store.value())
+    @property
+    def hybrid(self):
+        return len(self.store.keys()) > 1
     def __str__(self):
         rs = ' and '.join('%s %s' % (v,k) for k,v in self.store.iteritems())
         return '$%s %s %s/%s with %s' % (self.price, '/'.join(self.store.keys()), self.rate, self.capacity, rs)
