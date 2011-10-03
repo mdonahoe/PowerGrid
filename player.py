@@ -2,16 +2,20 @@ import choose
 import constants
 import market
 
+
 class Player(object):
     MAX_POWER_PLANTS = 4
+
     def __init__(self,name):
         self.name = name
         self.money = 50
         self.power_plants = []
         self.cities = []
-        self.game = None #set by game
+        self.game = None  # set by game
+
     def __str__(self):
         return '%s $%s' % (self.name, self.money)
+
     def buy_power_plant(self,plant,price):
         print price
         self.money -= price
@@ -20,6 +24,7 @@ class Player(object):
         if len(self.power_plants) > self.MAX_POWER_PLANTS:
             self.discard_power_plant()
         assert(len(self.power_plants) <= self.MAX_POWER_PLANTS)
+
     def discard_power_plant(self):
         plant = self.choose_plant_to_discard(self)
         self.power_plants.remove(plant)
@@ -29,6 +34,7 @@ class Player(object):
     def get_highest_power_plant(self):
         if not self.power_plants: return 0
         return max(p.price for p in self.power_plants)
+
     def power_cities(self):
         plants_resources = self.power_plants_to_use()
         city_count = 0
@@ -38,14 +44,17 @@ class Player(object):
             city_count += p.capacity
         city_count = min(city_count, len(self.cities))
         self.money += constants.payments[city_count]
+
     def get_power_plant_by_price(self,price,power_plants):
         for p in power_plants:
             if p.price==price: return p
         return None
+
     def can_buy_resource(self, r):
         for p in self.power_plants:
             if p.can_add_resource(r): return True
         return False
+
     def buy_obvious_resources(self):
         # fill your power plants
         plants = [p for p in self.power_plants if not p.can_power()]
@@ -108,25 +117,29 @@ class Player(object):
 
         assert(sum(rs_to_buy.values())==0, 'Warning: leftover resources')
 
-
-
-
     #SUBCLASS STUFF
     def choose_power_plant_to_discard(self):
         assert(False)
+
     def redistribute_resources(self,rs):
         """move resources to other power plants and return overflow"""
         assert(False)
+
     def initial_bid(self,bidders):
         assert(False)
+
     def get_bid(self,price,plant,bidders):
         assert(False)
+
     def buy_resources(self):
         assert(False)
+
     def build_cities(self):
         assert(False)
+
     def power_plants_to_use(self):
         assert(False)
+
 
 class HumanPlayer(Player):
     def choose_power_plant_to_discard(self):
@@ -137,6 +150,7 @@ class HumanPlayer(Player):
             for p in self.power_plants:
                 if p.price==price: return p
             print 'no matching price'
+
     def get_power_plant(self,accept_zero=False,power_plants=None):
         if power_plants is None:
             power_plants = self.power_plants
@@ -146,6 +160,7 @@ class HumanPlayer(Player):
             p = self.get_power_plant_by_price(price,power_plants)
             if p: return p
             print 'no match'
+
     def get_response(self,choices):
         while 1:
             choice=raw_input(':')
@@ -167,6 +182,7 @@ class HumanPlayer(Player):
             else:
                 discards.append(r)
         return discards
+
     def initial_bid(self,bidders):
         print 'Actual'
         for p in self.game.power_plant_market.actual():
@@ -189,7 +205,6 @@ class HumanPlayer(Player):
             if price >= p.price: break
             print 'too low'
         return price,p
-
 
     def get_bid(self,price,plant,bidders):
         if price >= self.money:
@@ -249,6 +264,7 @@ class HumanPlayer(Player):
             self.cities.append(city)
             city.buy(self)
             self.money -= price
+
     def power_plants_to_use(self):
         #todo, let them redistribute
         prs = []
