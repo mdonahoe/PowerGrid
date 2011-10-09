@@ -5,23 +5,22 @@ import constants
 class City(object):
     prices = [10, 15, 20]
 
-    def __init__(self, name):
+    def __init__(self, name, step_vars):
         self.name = name
         self.spots = []
+        self.step_vars = step_vars
 
     def price(self):
-        return 10
-
-    def price(self, step):
-        assert 0 <= step <= 2, "step outside of range"
-        return self.prices[step]
+        return self.prices[len(self.spots)]
 
     def buy(self, player):
-        assert(self.can_buy())
+        assert self.can_buy(player)
         self.spots.append(player)
 
-    def can_buy(self):
-        return len(self.spots) == 0
+    def can_buy(self, player):
+        if player in self.spots:
+            return False
+        return len(self.spots) < self.step_vars.step
 
     def __str__(self):
         return self.name
@@ -31,7 +30,7 @@ class City(object):
 
 
 class Grid(object):
-    def __init__(self, colors):
+    def __init__(self, colors, step_vars):
         #get a list of cities for this game
         cities = []
         for c in colors:
@@ -41,7 +40,7 @@ class Grid(object):
         self.cities = {}
         self.graph = {}
         for c in cities:
-            self.cities[c] = City(c)
+            self.cities[c] = City(c, step_vars)
             self.graph[c] = {}
 
         #attach edges
@@ -78,28 +77,13 @@ class Grid(object):
         cs = self._costs(owned_cities)
         return cs[cityname] + city.price()
 
-    def price_sorted(self, owned_cities):
-        costs = self._costs(owned_cities)
+    def price_sorted(self, player):
+        costs = self._costs(player.cities)
         prices = []
         for name, cost in costs.iteritems():
             city = self.cities[name]
-            if not city.can_buy():
+            if not city.can_buy(player):
                 continue
             prices.append((cost + city.price(), name))
         prices.sort()
         return prices
-
-    def bfs(self, root):
-        """breadth-first search algorithm"""
-        prev = {}
-        costs = {root: 0}
-        queue = [root]
-        while queue:
-            node = queue.pop(0)
-            for neighbor, cost in self.graph[node].iteritems():
-                c = cost + costs[node]
-                if neighbor not in costs or c < costs[neighbor]:
-                    costs[neighbor] = c
-                    prev[neigbor] = node
-                    queue.append(neighbor)
-        return prev, costs

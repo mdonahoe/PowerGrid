@@ -6,7 +6,7 @@ import market
 class Player(object):
     MAX_POWER_PLANTS = 4
 
-    def __init__(self,name):
+    def __init__(self, name):
         self.name = name
         self.money = 50
         self.power_plants = []
@@ -19,11 +19,11 @@ class Player(object):
     def buy_power_plant(self,plant,price):
         print price
         self.money -= price
-        assert(self.money >= 0)
+        assert self.money >= 0
         self.power_plants.append(plant)
         if len(self.power_plants) > self.MAX_POWER_PLANTS:
             self.discard_power_plant()
-        assert(len(self.power_plants) <= self.MAX_POWER_PLANTS)
+        assert len(self.power_plants) <= self.MAX_POWER_PLANTS
 
     def discard_power_plant(self):
         plant = self.choose_plant_to_discard(self)
@@ -115,7 +115,7 @@ class Player(object):
                 rs_to_buy[b]-=1
                 needs-=1
 
-        assert(sum(rs_to_buy.values())==0, 'Warning: leftover resources')
+        assert sum(rs_to_buy.values())==0, 'Warning: leftover resources'
 
     #SUBCLASS STUFF
     def choose_power_plant_to_discard(self):
@@ -248,7 +248,7 @@ class HumanPlayer(Player):
         print 'Build cities %s' % self.name
         while 1:
             available = []
-            for price,city in self.game.grid.price_sorted(self.cities):
+            for price,city in self.game.grid.price_sorted(self):
                 available.append(city)
                 print '\t$%s %s' %(price,city)
             name = raw_input('city name or (q)uit:')

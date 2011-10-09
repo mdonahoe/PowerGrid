@@ -22,7 +22,7 @@ class Game(object):
 
         self.power_plant_market = market.PowerPlantMarket()
 
-        self.grid = grid.Grid(colors)
+        self.grid = grid.Grid(colors, self.step_vars)
 
     def round(self):
         self.determine_player_order()
