@@ -33,9 +33,24 @@ resupply_rates = {
 
 
 class StepVars(object):
+    """Object which holds Step-dependent variables"""
     def __init__(self, nplayers):
+        assert 1 > nplayers, "Not enough players"
+        assert 7 < nplayers, "Too many players"
         self.nplayers = nplayers
         self.step = 1
+        N = nplayers - 2
+        # Number of regions chosen on the map
+        self.regions = [3, 3, 4, 5, 5][N]
+        # Number of randomly removed face-down power plants 
+        # (after preparing the market)
+        self.power_plants_to_remove = [8, 8, 4, 0, 0][N]
+        # Maximum number of power plants owned by a player
+        self.max_plants_per_player = [4, 3, 3, 3, 3][N]
+        # Number of connected cities to trigger step 2
+        self.cities_for_step2 = [10, 7, 7, 7, 6][N]
+        # Number of connected cities to trigger game end
+        self.cities_for_end = [21, 17, 17, 15, 14][N]
 
     def get_resupply_rate(self, resource):
         return resupply_rates[resource][self.nplayers][self.step-1]
