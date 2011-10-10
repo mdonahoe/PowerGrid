@@ -9,8 +9,8 @@ class TestResourceSubMarket(unittest.TestCase):
         self.sv = step_vars.StepVars(nplayers=2)
         oil_args = constants.resource_sub_markets[1]
         uranium_args = constants.resource_sub_markets[3]
-        self.oil = market.ResourceSubMarket(*oil_args, step_vars=self.sv)
-        self.uranium = market.ResourceSubMarket(*uranium_args, step_vars=self.sv)
+        self.oil = market.ResourceSubMarket(self.sv, *oil_args)
+        self.uranium = market.ResourceSubMarket(self.sv, *uranium_args)
 
     def test_current_price(self):
         """Supply/Demand price tests"""

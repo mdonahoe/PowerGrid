@@ -17,10 +17,10 @@ class Game(object):
         self.resource_market = {}
         for args in constants.resource_sub_markets:
             name = args[0]
-            m = market.ResourceSubMarket(*args, step_vars=self.step_vars)
+            m = market.ResourceSubMarket(self.step_vars, *args)
             self.resource_market[name] = m
 
-        self.power_plant_market = market.PowerPlantMarket()
+        self.power_plant_market = market.PowerPlantMarket(self.step_vars)
 
         self.grid = grid.Grid(colors, self.step_vars)
 
@@ -32,6 +32,7 @@ class Game(object):
         self.buy_resources()
         self.building()
         self.detect_step_two()
+        self.detect_game_end()
         self.bureaucracy()
 
     def determine_player_order(self):
@@ -54,7 +55,30 @@ class Game(object):
             p.build_cities()
 
     def detect_step_two(self):
-        pass
+        if self.step_vars.step > 1:
+            return
+        for p in self.players:
+            if len(p.cities) >= self.step_vars.cities_for_step2:
+                break
+        else:
+            return
+
+        # One or more players has the required number of cities
+        self.step_vars.step = 2
+        # Remove ONCE the lowerest numberd power plant from the game
+        # and replace it with a new one from the draw stack,
+        # rearranging the market as always.
+        self.power_plant_market.draw()
+
+    def detect_game_end(self):
+        for p in self.players:
+            if len(p.cities) >= self.step_vars.cities_for_end:
+                break
+        else:
+            return
+        # Now determine the winner
+        # Who ever powers the most
+        # Tie break on Elektro
 
     def bureaucracy(self):
         for p in self.players:
@@ -65,8 +89,9 @@ class Game(object):
 
 
 if __name__ == '__main__':
-    players = [player.HumanPlayer(name) for name in ['doug', 'matt']]
+    players = [player.HumanPlayer(name) for name in ('doug', 'matt')]
     colors = ['yellow', 'purple', 'blue']
+    print players
     g = Game(players, colors)
     while 1:
         g.round()

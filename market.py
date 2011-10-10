@@ -11,12 +11,19 @@ class SupplyError(Exception):
 
 
 class PowerPlantMarket(object):
-    def __init__(self):
+    def __init__(self, step_vars):
+        self.step_vars = step_vars
         ps = [powerplant.PowerPlant(*args) for args in constants.powerplants]
+        # Grab the $13 Eco plant
         special = ps.pop(10)
+        # Remove the first 8 cards and shuffle the rest
         self.deck = ps[8:]
         random.shuffle(self.deck)
-        self.deck = [special] + self.deck[8:]
+        # Remove the top few cards
+        self.deck = self.deck[step_vars.power_plants_to_remove:]
+        # Put the $13 eco plant on top
+        self.deck.insert(0, special)
+        # create the visible market
         self.visible = ps[:8]
 
     def draw(self):
@@ -42,7 +49,7 @@ class PowerPlantMarket(object):
 
 
 class ResourceSubMarket(object):
-    def __init__(self, resource, initial_supply, bucket_size, bucket_prices, step_vars):
+    def __init__(self, step_vars, resource, initial_supply, bucket_size, bucket_prices):
         self.resource = resource
         self.supply = initial_supply
         self.total = bucket_size * len(bucket_prices)
@@ -89,11 +96,3 @@ class ResourceSubMarket(object):
         self.available += n
         assert(self.available + self.supply <= self.total)
 
-
-if __name__ == '__main__':
-    import constants
-    import step_vars
-    sv = step_vars.StepVars(2)
-    oil = ResourceSubMarket('oil', 10, 3, range(1, 9), sv)
-    assert(oil.price_for_n(4) == 23)
-    print "Tests have passed"
