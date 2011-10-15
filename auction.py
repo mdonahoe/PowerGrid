@@ -2,7 +2,7 @@ class Auction(object):
     def __init__(self, players, pp_market):
         self.players = players[:]
         self.pp_market = pp_market
-        while self.players:
+        while self.players and pp_market.visible:
             self.auction()
 
     def auction(self):

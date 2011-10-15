@@ -20,8 +20,9 @@ class PowerPlant(object):
         return self.store[r]
     def consume(self,rs):
         assert(self.can_power())
+        _rs = rs[:]  # always make a copy of lists you are popping
         for _ in range(self.rate):
-            self._remove_resource(rs.pop())
+            self._remove_resource(_rs.pop())
     def can_power(self):
         return sum(self.store.values()) >= self.rate
     def obvious_power(self):
@@ -30,7 +31,7 @@ class PowerPlant(object):
         if len(k for k,v in self.store.iteritems() if v)==1: return True
         return False
     def resources_needed(self):
-        return self.rate - sum(self.store.value())
+        return self.rate - sum(self.store.values())
     @property
     def hybrid(self):
         return len(self.store.keys()) > 1

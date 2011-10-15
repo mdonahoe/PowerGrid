@@ -17,7 +17,7 @@ class Player(object):
         return '%s $%s' % (self.name, self.money)
 
     def buy_power_plant(self,plant,price):
-        print price
+        print self.name, price
         self.money -= price
         assert self.money >= 0
         self.power_plants.append(plant)
@@ -36,12 +36,15 @@ class Player(object):
         return max(p.price for p in self.power_plants)
 
     def power_cities(self):
+        # we have to ask for resources because of hybrids
         plants_resources = self.power_plants_to_use()
+        print plants_resources, self.name
         city_count = 0
         for p,rs in plants_resources:
             p.consume(rs)
             self.game.return_resources(rs)
             city_count += p.capacity
+            print "%s powered his %s" % (self.name, rs)
         city_count = min(city_count, len(self.cities))
         self.money += constants.payments[city_count]
 
@@ -131,7 +134,7 @@ class Player(object):
     def get_bid(self,price,plant,bidders):
         assert(False)
 
-    def buy_resources(self):
+    def buy_resources(self, resource_market):
         assert(False)
 
     def build_cities(self):
@@ -223,7 +226,7 @@ class HumanPlayer(Player):
             bid = self.money
         return bid
 
-    def buy_resources(self):
+    def buy_resources(self, resource_market):
         print 'Resource Market'
         for r,m in self.game.resource_market.iteritems():
             print '\t %s' % m

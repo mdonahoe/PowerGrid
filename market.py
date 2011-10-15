@@ -49,6 +49,8 @@ class PowerPlantMarket(object):
         self.draw()
 
     def cycle_deck(self):
+        if not self.visible:
+            return
         self.deck.append(self.visible.pop())
         self.draw()
 
@@ -85,7 +87,9 @@ class ResourceSubMarket(object):
         return sum(self.current_price(self.supply - i) for i in range(n))
 
     def resupply(self):
+        print "%s: %s, %s" % (self.resource, self.resupply_rate, self.available)
         resupply = min(self.resupply_rate, self.available)
+        print "resupplying %s with %s" % (self.resource, resupply)
         self.available -= resupply
         self.supply += resupply
         assert(self.available >= 0)
