@@ -26,7 +26,7 @@ class Player(object):
         assert len(self.power_plants) <= self.MAX_POWER_PLANTS
 
     def discard_power_plant(self):
-        plant = self.choose_plant_to_discard(self)
+        plant = self.choose_power_plant_to_discard()
         self.power_plants.remove(plant)
         rs = self.redistribute_resources(plant.store)
         self.game.return_resources(rs)
@@ -125,7 +125,7 @@ class Player(object):
         """move resources to other power plants and return overflow"""
         assert(False)
 
-    def initial_bid(self,bidders):
+    def initial_bid(self, pp_market, bidders):
         assert(False)
 
     def get_bid(self,price,plant,bidders):
@@ -183,18 +183,18 @@ class HumanPlayer(Player):
                 discards.append(r)
         return discards
 
-    def initial_bid(self,bidders):
+    def initial_bid(self, pp_market, bidders):
         print 'Actual'
-        for p in self.game.power_plant_market.actual():
+        for p in pp_market.actual():
             print '\t%s' % p
         print 'Future'
-        for p in self.game.power_plant_market.future():
+        for p in pp_market.future():
             print '\t%s' % p
         print 'Other bidders'
         for p in bidders: print '\t%s' % p
         print 'Choose a power plant'
         print '0 to pass'
-        p = self.get_power_plant(True,self.game.power_plant_market.actual())
+        p = self.get_power_plant(True, pp_market.actual())
         if not p: return None
         if p.price > self.money:
             print "too 'spensive... lose"
@@ -204,9 +204,9 @@ class HumanPlayer(Player):
             price = int(raw_input('$'))
             if price >= p.price: break
             print 'too low'
-        return price,p
+        return price, p
 
-    def get_bid(self,price,plant,bidders):
+    def get_bid(self, price, plant, bidders):
         if price >= self.money:
             print 'not enough money to bid'
             return 0
@@ -244,11 +244,11 @@ class HumanPlayer(Player):
             print 'idiot'
         self.game.return_resources(discards)
 
-    def build_cities(self):
+    def build_cities(self, grid):
         print 'Build cities %s' % self.name
         while 1:
             available = []
-            for price,city in self.game.grid.price_sorted(self):
+            for price,city in grid.price_sorted(self):
                 available.append(city)
                 print '\t$%s %s' %(price,city)
             name = raw_input('city name or (q)uit:')
@@ -256,8 +256,8 @@ class HumanPlayer(Player):
             if name not in available:
                 print 'no match'
                 continue
-            city = self.game.grid.cities[name]
-            price = self.game.grid.price_for_city(name,self.cities)
+            city = grid.cities[name]
+            price = grid.price_for_city(name,self.cities)
             if price > self.money:
                 print 'you tried to spent too much. done'
                 return
@@ -288,7 +288,4 @@ class HumanPlayer(Player):
                 else:
                     prs.append((p,rs))
         return prs
-
-
-
 

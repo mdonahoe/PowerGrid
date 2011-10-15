@@ -1,7 +1,7 @@
 class Auction(object):
-    def __init__(self, players, market):
+    def __init__(self, players, pp_market):
         self.players = players[:]
-        self.market = market
+        self.pp_market = pp_market
         while self.players:
             self.auction()
 
@@ -9,7 +9,7 @@ class Auction(object):
         #purchase a single powerplant
         bidders = self.players[:]
         p = bidders.pop(0)
-        bid = p.initial_bid(bidders)
+        bid = p.initial_bid(self.pp_market, bidders)
         if not bid:
             self.players.remove(p)
             return
@@ -26,4 +26,4 @@ class Auction(object):
         p = bidders[0]
         self.players.remove(p)
         p.buy_power_plant(plant, price)
-        self.market.buy(plant)
+        self.pp_market.buy(plant)

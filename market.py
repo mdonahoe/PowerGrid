@@ -27,10 +27,15 @@ class PowerPlantMarket(object):
         self.visible = ps[:8]
 
     def draw(self):
+        if len(self.deck) == 0:
+            return
         p = self.deck.pop(0)
         self.visible.append(p)
         self.visible.sort(lambda a, b: cmp(a.price, b.price))
-        assert(len(self.visible) == 8)
+        assert(len(self.visible) <= 8)
+        if self.deck:
+            # Not true in step 3
+            assert(len(self.visible) == 8)
 
     def actual(self):
         return self.visible[:4]

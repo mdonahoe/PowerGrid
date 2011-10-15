@@ -1,5 +1,6 @@
 import auction
 import constants
+import dumb_ai
 import grid
 import market
 import player
@@ -48,11 +49,13 @@ class Game(object):
 
     def return_resources(self, rs):
         for r in rs:
-            self.resource_market[r].restock(1)
+            if r == 'eco':
+                continue
+            self.resource_market[r].restock(rs[r])
 
     def building(self):
         for p in reversed(self.players):
-            p.build_cities()
+            p.build_cities(self.grid)
 
     def detect_step_two(self):
         if self.step_vars.step > 1:
@@ -66,6 +69,7 @@ class Game(object):
         # One or more players has the required number of cities
         self.step_vars.step = 2
         # Remove ONCE the lowerest numberd power plant from the game
+        self.power_plant_market.visible.pop(0)
         # and replace it with a new one from the draw stack,
         # rearranging the market as always.
         self.power_plant_market.draw()
@@ -89,7 +93,9 @@ class Game(object):
 
 
 if __name__ == '__main__':
-    players = [player.HumanPlayer(name) for name in ('doug', 'matt')]
+    if 0:
+        players = [player.HumanPlayer(name) for name in ('doug', 'matt')]
+    players = [dumb_ai.DumbAI('1'), dumb_ai.DumbAI('2')]
     colors = ['yellow', 'purple', 'blue']
     print players
     g = Game(players, colors)
