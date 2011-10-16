@@ -17,7 +17,6 @@ class Player(object):
         return '%s $%s' % (self.name, self.money)
 
     def buy_power_plant(self,plant,price):
-        print self.name, price
         self.money -= price
         assert self.money >= 0
         self.power_plants.append(plant)
@@ -38,15 +37,14 @@ class Player(object):
     def power_cities(self):
         # we have to ask for resources because of hybrids
         plants_resources = self.power_plants_to_use()
-        print plants_resources, self.name
         city_count = 0
         for p,rs in plants_resources:
             p.consume(rs)
             self.game.return_resources(rs)
             city_count += p.capacity
-            print "%s powered his %s" % (self.name, rs)
         city_count = min(city_count, len(self.cities))
         self.money += constants.payments[city_count]
+        return city_count
 
     def get_power_plant_by_price(self,price,power_plants):
         for p in power_plants:

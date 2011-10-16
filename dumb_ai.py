@@ -59,9 +59,6 @@ class BareMinimumAI(DumbAI):
         if resource == 'eco': return
         m = resource_market[resource]
         resource_market[resource].buy(n)
-        print "%s bought %s %s" % (self.name, n, resource)
-        print "He has $%s left." % self.money
-        print "There are %s %s in the market" % (m.supply, resource)
         plant.stock([resource]*n)
 
     def build_cities(self, grid):

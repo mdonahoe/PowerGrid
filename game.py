@@ -89,9 +89,9 @@ class Game(object):
         else:
             return
         # Now determine the winner
-        # Who ever powers the most
+        # Who ever powers the most cities
         # Tie break on Elektro
-        rank = [(len(p.cities), p.money, p) for p in self.players]
+        rank = [(p.power_cities(), p.money, p) for p in self.players]
         rank.sort()
         return rank[-1][2]
 

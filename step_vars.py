@@ -35,7 +35,6 @@ resupply_rates = {
 class StepVars(object):
     """Object which holds Step-dependent variables"""
     def __init__(self, nplayers):
-        print nplayers
         assert nplayers > 1, "Not enough players"
         assert nplayers < 7, "Too many players"
         self.nplayers = nplayers
