@@ -38,6 +38,7 @@ class DumbAI(player.Player):
     def power_plants_to_use(self):
         return []
 
+
 class BareMinimumAI(DumbAI):
     """
     Does the bare minimum to try to win
@@ -68,3 +69,25 @@ class BareMinimumAI(DumbAI):
 
     def power_plants_to_use(self):
         return [(p, p.rate * [p.store.keys()[0]]) for p in self.power_plants]
+
+
+class Outbidder(DumbAI):
+    """always tries to outbid you"""
+    def get_bid(self, price, plant, bidders):
+        if price < self.money:
+            return price + 1
+        return None
+
+class BasicAI(DumbAI):
+    """Buys a new power plant, resources, and a city every round"""
+    def buy_resources(self, resource_market):
+        for plant in self.power_plants:
+            resource = plant.store.keys()[0]
+            n = plant.resources_needed()
+            if n == 0: continue
+            m = resource_market[resource]
+            m.buy(n)
+            plant.stock([resource]*n)
+    def power_plants_to_use(self):
+        return [(p, p.rate * [p.store.keys()[0]]) for p in self.power_plants]
+

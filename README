@@ -1,38 +1,13 @@
 Next steps:
 1. Confirm step 2 works correctly.
-2. Determine winner by number of powered cities, not number of cities owned
-3. Make an AI that will beat BareMinimumAI
+2. Fix AIs to check for SupplyErrors when buying
+3. Make an AI that will beat BasicAI
+4. Make an ai test that runs AIs against each other many times and confirms
+    a. no errors occurred.
+    b. the best ai always wins
 
-Solve PowerGrid using maths
+POWERGRID:
+We suspect that this game is mostly about saving a few dollars here and there,
+and that it would be best played by computer.
 
-
-1. determine player order
-2. power plant auction
-3. purchase resources
-4. build cities
-5. bureaucracy
-
-Data:
-1. network
-2. power plants
-3. number/prices/restock resources
-4. payment prices/cities
-5. step criteria
-6. "rules"
-
-
-TODO
-
-1. __str__ methods for objects
-2. better ui for whose turn it is
-3. block city purchases
-4. adjust to rule changes with more players
-5. steps 2,3
-6. AI
-7. ?
-8. profit
-
-
-Tests
-1. confirm that certain things cost a certain amount of money.
-2. have an entire test round?
+The goal of this project is to develop an AI that plays powergrid optimally.

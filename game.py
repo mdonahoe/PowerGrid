@@ -111,7 +111,12 @@ class Game(object):
 if __name__ == '__main__':
     if 0:
         players = [player.HumanPlayer(name) for name in ('doug', 'matt')]
-    players = [dumb_ai.DumbAI('Bill'), dumb_ai.BareMinimumAI('Ted')]
+    players = [
+        dumb_ai.DumbAI('Bill'),
+        dumb_ai.BareMinimumAI('Ted'),
+        dumb_ai.Outbidder('Steve'),
+        dumb_ai.BasicAI('Vern')
+    ]
     colors = ['yellow', 'purple', 'blue']
     print players
     g = Game(players, colors)
