@@ -9,6 +9,9 @@ import powerplant
 class SupplyError(Exception):
     pass
 
+class Step3Error(Exception):
+    pass
+
 
 class PowerPlantMarket(object):
     def __init__(self, step_vars):
@@ -18,27 +21,37 @@ class PowerPlantMarket(object):
         special = ps.pop(10)
         # Remove the first 8 cards and shuffle the rest
         self.deck = ps[8:]
-        random.shuffle(self.deck)
+        self.shuffle()
         # Remove the top few cards
         self.deck = self.deck[step_vars.power_plants_to_remove:]
         # Put the $13 eco plant on top
         self.deck.insert(0, special)
+
+        self.step3 = powerplant.PowerPlant(999, 0, 'eco', 1)
+        self.deck.append(self.step3)
         # create the visible market
         self.visible = ps[:8]
+
+        self._did_step3_shuffle = False
 
     def draw(self):
         if len(self.deck) == 0:
             return
         p = self.deck.pop(0)
+        if p == self.step3:
+            raise Step3Error
         self.visible.append(p)
         self.visible.sort(lambda a, b: cmp(a.price, b.price))
         assert(len(self.visible) <= 8)
-        if self.deck:
+        if self.deck and self.step_vars.step != 3:
             # Not true in step 3
             assert(len(self.visible) == 8)
 
     def actual(self):
-        return self.visible[:4]
+        if self.step_vars.step < 3:
+            return self.visible[:4]
+        else:
+            return self.visible
 
     def future(self):
         return self.visible[4:8]
@@ -46,11 +59,30 @@ class PowerPlantMarket(object):
     def buy(self, powerplant):
         assert(powerplant in self.actual())
         self.visible.remove(powerplant)
+        # Must do the draw last b/c it can raise Step3Error
         self.draw()
 
+    def shuffle(self, step3=False):
+        self._did_step3_shuffle = True
+        random.shuffle(self.deck)
+
     def cycle_deck(self):
-        self.deck.append(self.visible.pop())
+        if self.step_vars.step == 3:
+            if self.visible:
+                self.visible.pop(0)
+        else:
+            self.deck.append(self.visible.pop())
         self.draw()
+
+    def do_step_three(self):
+        self.step_vars.step = 3
+        if self.step3 in self.visible:
+            self.visible.remove(self.step3)
+        if self.visible:
+            self.visible.pop(0)
+        assert(len(self.visible) <= 6)
+        if not self._did_step3_shuffle:
+            self.shuffle()
 
 
 class ResourceSubMarket(object):

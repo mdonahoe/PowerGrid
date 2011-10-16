@@ -10,6 +10,9 @@ class DumbAI(player.Player):
         return rs
 
     def initial_bid(self, pp_market, bidders):
+        actual = pp_market.actual()
+        if not actual:
+            return None
         cheapest = pp_market.actual()[0]
         if cheapest.price <= self.money:
             return cheapest.price, cheapest

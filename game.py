@@ -87,9 +87,14 @@ class Game(object):
     def bureaucracy(self):
         for p in self.players:
             p.power_cities()
-        self.power_plant_market.cycle_deck()
         for _, rm in self.resource_market.iteritems():
             rm.resupply()
+        # This has to be after resupply b/c you resupply at step 2 rates if
+        # step 3 is triggered here.
+        try:
+            self.power_plant_market.cycle_deck()
+        except market.Step3Error:
+            self.power_plant_market.do_step_three()
 
 
 if __name__ == '__main__':
