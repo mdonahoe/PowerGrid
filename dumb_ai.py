@@ -21,7 +21,7 @@ class DumbAI(player.Player):
     def get_bid(self, price, plant, bidders):
         return None
 
-    def buy_resources(self):
+    def buy_resources(self, resource_market):
         return None
 
     def build_cities(self, grid):
@@ -38,3 +38,36 @@ class DumbAI(player.Player):
     def power_plants_to_use(self):
         return []
 
+class BareMinimumAI(DumbAI):
+    """
+    Does the bare minimum to try to win
+    1. Buys one power plant
+    2. buys a single city
+    3. always powers that city
+    """
+    def initial_bid(self, pp_market, bidders):
+        if self.power_plants:
+            return None
+        return super(BareMinimumAI, self).initial_bid(pp_market, bidders)
+
+    def buy_resources(self, resource_market):
+        if not self.power_plants:
+            return None
+        plant = self.power_plants[0]
+        resource = plant.store.keys()[0]
+        n = plant.resources_needed()
+        if resource == 'eco': return
+        m = resource_market[resource]
+        resource_market[resource].buy(n)
+        print "%s bought %s %s" % (self.name, n, resource)
+        print "He has $%s left." % self.money
+        print "There are %s %s in the market" % (m.supply, resource)
+        plant.stock([resource]*n)
+
+    def build_cities(self, grid):
+        if self.cities:
+            return
+        super(BareMinimumAI, self).build_cities(grid)
+
+    def power_plants_to_use(self):
+        return [(p, p.rate * [p.store.keys()[0]]) for p in self.power_plants]

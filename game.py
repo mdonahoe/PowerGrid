@@ -33,7 +33,9 @@ class Game(object):
         self.buy_resources()
         self.building()
         self.detect_step_two()
-        self.detect_game_end()
+        winner = self.detect_game_end()
+        if winner:
+            return winner
         self.bureaucracy()
 
     def determine_player_order(self):
@@ -45,13 +47,19 @@ class Game(object):
 
     def buy_resources(self):
         for p in reversed(self.players):
-            p.buy_resources()
+            p.buy_resources(self.resource_market)
 
     def return_resources(self, rs):
-        for r in rs:
-            if r == 'eco':
-                continue
-            self.resource_market[r].restock(rs[r])
+        # rs is either a list of strings, or a dict
+        if type(rs)==type([]):
+            _rs = {}
+            for r in rs: _rs[r] = _rs.get(r, 0) + 1
+        else:
+            _rs = rs
+
+        for r,n in _rs.iteritems():
+            if n == 0: continue
+            self.resource_market[r].restock(n)
 
     def building(self):
         for p in reversed(self.players):
@@ -83,6 +91,9 @@ class Game(object):
         # Now determine the winner
         # Who ever powers the most
         # Tie break on Elektro
+        rank = [(len(p.cities), p.money, p) for p in self.players]
+        rank.sort()
+        return rank[-1][2]
 
     def bureaucracy(self):
         for p in self.players:
@@ -100,9 +111,11 @@ class Game(object):
 if __name__ == '__main__':
     if 0:
         players = [player.HumanPlayer(name) for name in ('doug', 'matt')]
-    players = [dumb_ai.DumbAI('1'), dumb_ai.DumbAI('2')]
+    players = [dumb_ai.DumbAI('Bill'), dumb_ai.BareMinimumAI('Ted')]
     colors = ['yellow', 'purple', 'blue']
     print players
     g = Game(players, colors)
-    while 1:
-        g.round()
+    win = None
+    while win is None:
+        win = g.round()
+    print win, win.name

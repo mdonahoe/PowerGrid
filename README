@@ -1,8 +1,7 @@
 Next steps:
-0. Handle running out of power plants.
-1. Make sure step 2 works correctly.
-2. Make step 3 work so that dumb AI can complete a game.
-
+1. Confirm step 2 works correctly.
+2. Determine winner by number of powered cities, not number of cities owned
+3. Make an AI that will beat BareMinimumAI
 
 Solve PowerGrid using maths
 

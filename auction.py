@@ -5,7 +5,7 @@ class Auction(object):
         self.players = players[:]
         self.pp_market = pp_market
         step3started = False
-        while self.players:
+        while self.players and pp_market.visible:
             try:
                 self.auction()
             except market.Step3Error:
