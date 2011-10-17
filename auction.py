@@ -4,15 +4,8 @@ class Auction(object):
     def __init__(self, players, pp_market):
         self.players = players[:]
         self.pp_market = pp_market
-        step3started = False
         while self.players and pp_market.visible:
-            try:
-                self.auction()
-            except market.Step3Error:
-                self.pp_market.shuffle(step3=True)
-                step3started = True
-        if step3started:
-            self.pp_market.do_step_three()
+            self.auction()
 
     def auction(self):
         #purchase a single powerplant
@@ -35,5 +28,4 @@ class Auction(object):
         p = bidders[0]
         self.players.remove(p)
         p.buy_power_plant(plant, price)
-        # Must buy last b/c this can raise Step3 Error
         self.pp_market.buy(plant)

@@ -29,14 +29,16 @@ class Game(object):
         self.determine_player_order()
 
         auction.Auction(self.players, self.power_plant_market)
-
+        self.detect_step_three()
         self.buy_resources()
         self.building()
         self.detect_step_two()
+        self.detect_step_three()
         winner = self.detect_game_end()
         if winner:
             return winner
         self.bureaucracy()
+        self.detect_step_three()
 
     def print_state(self):
         """print the state of the game"""
@@ -101,6 +103,13 @@ class Game(object):
         # rearranging the market as always.
         self.power_plant_market.draw()
 
+    def detect_step_three(self):
+        if self.step_vars.step == 3:
+            return 
+        ppm = self.power_plant_market
+        if ppm.step3 in ppm.visible:
+            ppm.do_step_three()
+
     def detect_game_end(self):
         for p in self.players:
             if len(p.cities) >= self.step_vars.cities_for_end:
@@ -135,7 +144,6 @@ def play_game(players=None):
     g = Game(players, colors)
     while not win:
         win = g.round()
-    print '-'*40
     return win
 
 
@@ -150,4 +158,5 @@ if __name__ == '__main__':
         try:
             print play_game(players)
         except market.SupplyError:
-            pass
+            print 'SupplyError'
+        print '-'*40

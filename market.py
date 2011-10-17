@@ -39,7 +39,6 @@ class PowerPlantMarket(object):
             return
         p = self.deck.pop(0)
         if p == self.step3:
-            raise Step3Error
         self.visible.append(p)
         self.visible.sort(lambda a, b: cmp(a.price, b.price))
         assert len(self.visible) <= 8
