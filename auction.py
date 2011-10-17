@@ -28,10 +28,10 @@ class Auction(object):
             p = bidders.pop(0)
             bid = p.get_bid(price, plant, bidders)
             if bid:
-                assert(bid > price)
+                assert bid > price
                 price = bid
                 bidders.append(p)
-        assert(len(bidders) == 1)
+        assert len(bidders) == 1
         p = bidders[0]
         self.players.remove(p)
         p.buy_power_plant(plant, price)

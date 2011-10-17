@@ -38,6 +38,24 @@ class Game(object):
             return winner
         self.bureaucracy()
 
+    def print_state(self):
+        """print the state of the game"""
+        """
+        1. players
+            a. money
+            b. powerplants
+            c. resources
+        2. cities
+        3. power plant market
+        4. resource market
+        """
+        print 'Name\t'+'\t'.join(p.name for p in self.players)
+        print 'Money\t'+'\t'.join(str(p.money) for p in self.players)
+        print 'Cities\t'+'\t'.join(str(len(p.cities)) for p in self.players)
+        for key,m in self.resource_market.iteritems():
+            print key,m.supply
+        print '-'*40
+
     def determine_player_order(self):
         def compare_players(a, b):
             return (cmp(len(a.cities), len(b.cities))
@@ -73,6 +91,7 @@ class Game(object):
                 break
         else:
             return
+        print 'STEP TWO'
 
         # One or more players has the required number of cities
         self.step_vars.step = 2
@@ -108,19 +127,27 @@ class Game(object):
             self.power_plant_market.do_step_three()
 
 
-if __name__ == '__main__':
-    if 0:
+def play_game(players=None):
+    if players is None:
         players = [player.HumanPlayer(name) for name in ('doug', 'matt')]
-    players = [
-        dumb_ai.DumbAI('Bill'),
-        dumb_ai.BareMinimumAI('Ted'),
-        dumb_ai.Outbidder('Steve'),
-        dumb_ai.BasicAI('Vern')
-    ]
-    colors = ['yellow', 'purple', 'blue']
-    print players
-    g = Game(players, colors)
     win = None
-    while win is None:
+    colors = ['yellow', 'purple', 'blue']
+    g = Game(players, colors)
+    while not win:
         win = g.round()
-    print win, win.name
+    print '-'*40
+    return win
+
+
+if __name__ == '__main__':
+    for i in range(100):
+        players = [
+            dumb_ai.DumbAI('Bill'),
+            dumb_ai.BareMinimumAI('Ted'),
+            dumb_ai.Outbidder('Steve'),
+            dumb_ai.BasicAI('Vern')
+        ]
+        try:
+            print play_game(players)
+        except market.SupplyError:
+            pass

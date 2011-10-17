@@ -49,4 +49,4 @@ class PowerPlant(object):
         rs = ' and '.join('%s %s' % (v, k) for k, v in self.store.iteritems())
         return '$%s %s %s/%s with %s' % (self.price, '/'.join(self.store.keys()), self.rate, self.capacity, rs)
 
-
+    def __repr__(self): return str(self)
