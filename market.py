@@ -44,11 +44,6 @@ class PowerPlantMarket(object):
         assert len(self.visible) <= 8
         if self.deck and self.step_vars.step < 3:
             # Not true in step 3
-            # this is currently not passing on occasion. wtf?
-            if len(self.visible) < 8:
-                print self.step_vars.step
-                print self.visible
-                print self.deck
             assert len(self.visible) == 8
 
     def actual(self):

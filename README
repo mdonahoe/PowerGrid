@@ -1,10 +1,11 @@
 Next steps:
-1. Confirm step 2 works correctly.
+1. Confirm step detection works correctly.
+    a. play a real two player game with sorted deck
+    b. have specific rules to govern the play
+    c. record some data over the course of the game (money per round?)
+    d. use data to compare against full game test.
 2. Fix AIs to check for SupplyErrors when buying
 3. Make an AI that will beat BasicAI
-4. Make an ai test that runs AIs against each other many times and confirms
-    a. no errors occurred.
-    b. the best ai always wins
 
 POWERGRID:
 We suspect that this game is mostly about saving a few dollars here and there,
