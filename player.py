@@ -14,7 +14,7 @@ class Player(object):
         self.game = None  # set by game
 
     def __str__(self):
-        return '%s $%s' % (self.name, self.money)
+        return '%s $%s %s %s' % (self.name, self.money, str(self.cities), str(self.power_plants))
 
     def buy_power_plant(self,plant,price):
         self.money -= price
@@ -22,7 +22,9 @@ class Player(object):
         self.power_plants.append(plant)
         if len(self.power_plants) > self.MAX_POWER_PLANTS:
             self.discard_power_plant()
+        self.power_plants.sort()
         assert len(self.power_plants) <= self.MAX_POWER_PLANTS
+        assert plant in self.power_plants, "You can't discard the plant you just bought"
 
     def discard_power_plant(self):
         plant = self.choose_power_plant_to_discard()
@@ -33,6 +35,9 @@ class Player(object):
     def get_highest_power_plant(self):
         if not self.power_plants: return 0
         return max(p.price for p in self.power_plants)
+
+    def total_capacity(self):
+        return sum(plant.capacity for plant in self.power_plants)
 
     def power_cities(self):
         # we have to ask for resources because of hybrids
@@ -135,7 +140,7 @@ class Player(object):
     def buy_resources(self, resource_market):
         assert(False)
 
-    def build_cities(self):
+    def build_cities(self, grid):
         assert(False)
 
     def power_plants_to_use(self):

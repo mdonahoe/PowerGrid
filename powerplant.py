@@ -3,12 +3,22 @@ class PowerPlant(object):
         self.capacity = capacity # number of cities it can power
         self.price = price # starting price for this powerplant
         self.rate = rate # number of resources required to power it
-        self.store = dict([(r, 0) for r in accepts.split('/')]) # current resource allotment
+        self.store = dict((r, 0) for r in accepts.split('/')) # current resource allotment
 
     def stock(self, resources):
         assert(len(resources)+sum(self.store.values()) <= self.rate*2)
         for r in resources:
             self._add_resource(r)
+
+    def better_stock(self, rs):
+        """Stock as many resources from a dictionary as possible, return remaining"""
+        for r in rs:
+            if not rs[r] or r not in self.store:
+                continue
+            while rs[r] and self.can_add_resource(r):
+                self._add_resource(r)
+                rs[r] -= 1
+        return dict((r, c) for r, c in rs.iteritems() if c)
 
     def can_add_resource(self, r):
         return (r in self.store and sum(self.store.values())+1 <= self.rate*2)
@@ -44,6 +54,9 @@ class PowerPlant(object):
     @property
     def hybrid(self):
         return len(self.store.keys()) > 1
+
+    def __cmp__(self, other):
+        return cmp(self.price, other.price)
 
     def __str__(self):
         rs = ' and '.join('%s %s' % (v, k) for k, v in self.store.iteritems())

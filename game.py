@@ -32,6 +32,7 @@ class Game(object):
         self.detect_step_three()
         self.buy_resources()
         self.building()
+        self.power_plant_market.discard_low_power_plants(self.players)
         self.detect_step_two()
         self.detect_step_three()
         winner = self.detect_game_end()

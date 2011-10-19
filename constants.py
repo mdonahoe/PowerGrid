@@ -51,7 +51,7 @@ resource_sub_markets = [
     ('coal', 24, 3, range(1,9)),
     ('oil', 18, 3, range(1,9)),
     ('garbage', 6, 3, range(1,9)),
-    ('uranium', 4, 1, range(1,9)+[10,12,14,16])
+    ('uranium', 2, 1, range(1,9)+[10,12,14,16])
 ]
 
 network = {
@@ -62,7 +62,7 @@ network = {
     'konstanz':{'stuttgart':16,'freiburg':14},
     'stuttgart':{'freiburg':16,'saarbruecken':17,'mannheim':6,'wuerzburg':12},
     #yellow
-    'nuernburg':{'erfurt':21,'wuerzburg':8},
+    'nuernberg':{'erfurt':21,'wuerzburg':8},
     'wuerzburg':{'mannheim':10,'frankfurt-m':13,'fulda':11},
     'fulda':{'frankfurt-m':8,'kassel':8,'erfurt':13},
     'erfurt':{'kassel':15,'hannover':19,'halle':6,'dresden':19},
@@ -96,7 +96,7 @@ network = {
 
 colors = {
     'purple':['passau','regensburg','augsburg','konstanz','stuttgart','freiburg','muenchen'],
-    'yellow':['nuernburg','wuerzburg','fulda','erfurt','halle','leipzig','dresden'],
+    'yellow':['nuernberg','wuerzburg','fulda','erfurt','halle','leipzig','dresden'],
     'blue':['mannheim','saarbruecken','trier', 'wiesbaden','frankfurt-m','aachen','koeln'],
     'red':['duesseldorf','essen','kassel','osnabrueck','muenster','duisburg','dortmund'],
     'teal':['bremen','hannover','hamburg','kiel','cuxhaven','flensburg','wilhelmshaven'],

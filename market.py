@@ -33,6 +33,14 @@ class PowerPlantMarket(object):
         self.visible = ps[:8]
 
         self._did_step3_shuffle = False
+    def discard_low_power_plants(self, players):
+        most_cities = max(len(player.cities) for player in players)
+        while self.visible:
+            if self.visible[0].price <= most_cities:
+                self.visible.pop(0)
+                self.draw()
+            else:
+                break
 
     def draw(self):
         if len(self.deck) == 0:
@@ -41,7 +49,7 @@ class PowerPlantMarket(object):
         if p == self.step3:
             self.shuffle(step3=True)
         self.visible.append(p)
-        self.visible.sort(lambda a, b: cmp(a.price, b.price))
+        self.visible.sort()
         assert len(self.visible) <= 8
         if self.deck and self.step_vars.step < 3:
             # Not true in step 3
