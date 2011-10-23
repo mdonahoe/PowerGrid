@@ -9,9 +9,6 @@ import powerplant
 class SupplyError(Exception):
     pass
 
-class Step3Error(Exception):
-    pass
-
 
 class PowerPlantMarket(object):
     def __init__(self, step_vars):
@@ -68,12 +65,16 @@ class PowerPlantMarket(object):
     def buy(self, powerplant):
         assert powerplant in self.actual(), "that powerplant is not for sale"
         self.visible.remove(powerplant)
-        # Must do the draw last b/c it can raise Step3Error
         self.draw()
 
     def shuffle(self, step3=False):
         self._did_step3_shuffle = True
         random.shuffle(self.deck)
+
+    def discard_lowest(self):
+        if self.visible:
+            self.visible.pop(0)
+        self.draw()
 
     def cycle_deck(self):
         if self.step_vars.step == 3:
@@ -130,6 +131,7 @@ class ResourceSubMarket(object):
 
     def resupply(self):
         resupply = min(self.resupply_rate, self.available)
+        print 'restocking %s %s' % (resupply, self.resource)
         self.available -= resupply
         self.supply += resupply
         assert self.available >= 0

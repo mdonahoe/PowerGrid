@@ -132,10 +132,13 @@ class PowerAI(player.Player):
 
     def initial_bid(self, pp_market, bidders):
         """Bid on the highest non-hybrid"""
+        print 'actual market: ', [plant.price for plant in pp_market.actual()]
         for plant in reversed(pp_market.actual()):
             if plant.hybrid or plant.price > self.money:
                 continue
-            print self.name, plant.price, pp_market.visible
+            print self.name, plant.price
+            if len(self.power_plants) == 4 and plant.price < min([x.price for x in self.power_plants]):
+                return None
             return plant.price, plant
         return None
 
@@ -156,19 +159,24 @@ class PowerAI(player.Player):
 
     def buy_resources(self, resource_market):
         """Buy resources for all powerplants, decreasing"""
+        print '%s buying resources' % self.name
         for plant in reversed(self.power_plants):
             n = plant.resources_needed()
             if n <= 0:
                 continue
             resource = plant.store.keys()[0]
+            print 'need %s %s' % (n, resource)
             try:
                 price = resource_market[resource].price_for_n(n)
                 if price > self.money:
+                    print 'couldn\'t buy costs %s have %s' % (price, self.money)
                     continue
                 resource_market[resource].buy(n)
                 self.money -= price
+                print 'bought for %s have %s' % (price, self.money)
                 plant.stock([resource] * n)
             except market.SupplyError:
+                print 'Market didn\'t have enough'
                 continue
 
     def build_cities(self, grid):
@@ -176,8 +184,12 @@ class PowerAI(player.Player):
         starting with cheapest and alphabetically"""
         while True:
             cities = grid.price_sorted(self)
-            print cities[:2], self.name
-            price, name = grid.price_sorted(self)[0]
+            print cities[:2], self.name, self.money
+            if not cities:
+                print self.cities
+                print set([city.name for city in self.cities])-set(grid.cities.keys())
+                return
+            price, name = cities[0]
             city = grid.cities[name]
             if price > self.money or len(self.cities) >= self.total_capacity():
                 break

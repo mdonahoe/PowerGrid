@@ -1,8 +1,6 @@
 Next steps:
-1. Confirm step detection works correctly.
+1. Play a new game iteratively. Current test game seems hosed.
     a. use data to compare against full game test.
-    b. get the entire test run to pass (monkey patch step 3 pp shuffle)
-    c. figure out why step 3 failed if b wasnt at fault
 2. Fix AIs to check for SupplyErrors when buying
 3. Make an AI that will beat BasicAI
 

@@ -28,7 +28,9 @@ class Game(object):
     def round(self):
         self.determine_player_order()
 
-        auction.Auction(self.players, self.power_plant_market)
+        turn_auction = auction.Auction(self.players, self.power_plant_market)
+        if not turn_auction.auction_all():
+            self.power_plant_market.discard_lowest()
         self.detect_step_three()
         self.buy_resources()
         self.building()

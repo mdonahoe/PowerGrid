@@ -152,9 +152,9 @@ dict(
 	p2_plants=[18,19,24,25],
 	p2_new_cities=['erfurt','halle','leipzig','dresden'],
 
-	coal=15,
+	coal=16,
 	oil=24,
-	garbage=10,
+	garbage=8,
 	uranium=10,
 
 	step=3,

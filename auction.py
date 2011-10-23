@@ -4,17 +4,22 @@ class Auction(object):
     def __init__(self, players, pp_market):
         self.players = players[:]
         self.pp_market = pp_market
-        while self.players and pp_market.visible:
-            self.auction()
 
-    def auction(self):
+    def auction_all(self):
+        any_bought = False
+        while self.players and self.pp_market.visible:
+            if self._auction():
+                any_bought = True
+        return any_bought
+
+    def _auction(self):
         #purchase a single powerplant
         bidders = self.players[:]
         p = bidders.pop(0)
         bid = p.initial_bid(self.pp_market, bidders)
         if not bid:
             self.players.remove(p)
-            return
+            return False
         price, plant = bid
         bidders.append(p)
         while len(bidders) > 1:
@@ -29,3 +34,4 @@ class Auction(object):
         self.players.remove(p)
         p.buy_power_plant(plant, price)
         self.pp_market.buy(plant)
+        return True
