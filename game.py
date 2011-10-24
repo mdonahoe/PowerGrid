@@ -9,7 +9,14 @@ import step_vars
 
 
 class Game(object):
+    """
+    PowerGrid game object has a list of players,
+    and manages the rest of the game state.
+
+    Each round is played by calling .round()
+    """
     def __init__(self, players, colors):
+        """Create the game"""
         self.players = players
         for p in players:
             p.game = self
@@ -26,6 +33,7 @@ class Game(object):
         self.grid = grid.Grid(colors, self.step_vars)
 
     def round(self):
+        """Process a single round in the game and return a win, if any"""
         self.determine_player_order()
 
         turn_auction = auction.Auction(self.players, self.power_plant_market)
@@ -62,6 +70,9 @@ class Game(object):
         print '-'*40
 
     def determine_player_order(self):
+        """Player order is determined at the end of each round
+        The player with the most cities, and highest power plant
+        goes first"""
         def compare_players(a, b):
             return (cmp(len(a.cities), len(b.cities))
                     or cmp(a.get_highest_power_plant(),
@@ -69,10 +80,13 @@ class Game(object):
         self.players.sort(compare_players, reverse=True)
 
     def buy_resources(self):
+        """Each player buys resources in order"""
         for p in reversed(self.players):
             p.buy_resources(self.resource_market)
 
     def return_resources(self, rs):
+        """When a player powers a plant, or discards a plant,
+        he may have resources to return to the market"""
         # rs is either a list of strings, or a dict
         if type(rs)==type([]):
             _rs = {}
@@ -85,10 +99,13 @@ class Game(object):
             self.resource_market[r].restock(n)
 
     def building(self):
+        """Each player buys as many plants as they want"""
         for p in reversed(self.players):
             p.build_cities(self.grid)
 
     def detect_step_two(self):
+        """Step 2 happens when a player has a certain number
+        of cities. It is possible for step 3 to overtake it"""
         if self.step_vars.step > 1:
             return
         for p in self.players:
@@ -107,6 +124,7 @@ class Game(object):
         self.power_plant_market.draw()
 
     def detect_step_three(self):
+        """Step 3 occurs when the Step 3 card is drawn"""
         if self.step_vars.step == 3:
             return 
         ppm = self.power_plant_market
@@ -114,6 +132,8 @@ class Game(object):
             ppm.do_step_three()
 
     def detect_game_end(self):
+        """The game ends when 1 player has a certain number of 
+        power plants"""
         for p in self.players:
             if len(p.cities) >= self.step_vars.cities_for_end:
                 break
@@ -127,6 +147,11 @@ class Game(object):
         return rank[-1][2]
 
     def bureaucracy(self):
+        """In bureaucracy, each player:
+        powers their cities
+        returns resources
+        earns money
+        """
         for p in self.players:
             p.power_cities()
         for _, rm in self.resource_market.iteritems():
@@ -140,6 +165,7 @@ class Game(object):
 
 
 def play_game(players=None):
+    """Play until the game ends with a list of players"""
     if players is None:
         players = [player.HumanPlayer(name) for name in ('doug', 'matt')]
     win = None

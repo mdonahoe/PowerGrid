@@ -1,6 +1,8 @@
 import market
 
 class Auction(object):
+    """Each player buys, or passes on a power plant.
+    It happens in order, but if a player is outbid, he goes again"""
     def __init__(self, players, pp_market):
         self.players = players[:]
         self.pp_market = pp_market
@@ -13,7 +15,7 @@ class Auction(object):
         return any_bought
 
     def _auction(self):
-        #purchase a single powerplant
+        """Purchase a single power plant"""
         bidders = self.players[:]
         p = bidders.pop(0)
         bid = p.initial_bid(self.pp_market, bidders)

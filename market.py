@@ -11,6 +11,8 @@ class SupplyError(Exception):
 
 
 class PowerPlantMarket(object):
+    """The power plant market manages the deck of
+    power plant cards"""
     def __init__(self, step_vars):
         self.step_vars = step_vars
         ps = [powerplant.PowerPlant(*args) for args in constants.powerplants]
@@ -31,6 +33,8 @@ class PowerPlantMarket(object):
 
         self._did_step3_shuffle = False
     def discard_low_power_plants(self, players):
+        """Remove any power plants whose price is equal
+        or less than the amount of cities a player owns"""
         most_cities = max(len(player.cities) for player in players)
         while self.visible:
             if self.visible[0].price <= most_cities:
@@ -40,6 +44,8 @@ class PowerPlantMarket(object):
                 break
 
     def draw(self):
+        """Take a powerplant from the top of the deck
+        and put it into the visible list"""
         if len(self.deck) == 0:
             return
         p = self.deck.pop(0)
@@ -53,12 +59,15 @@ class PowerPlantMarket(object):
             assert len(self.visible) == 8
 
     def actual(self):
+        """Return the last of powerplants that then player
+        can actually buy"""
         if self.step_vars.step < 3:
             return self.visible[:4]
         else:
             return self.visible
 
     def future(self):
+        """Return the list of powerplants that are unpcoming"""
         assert self.step_vars.step < 3, "no future market in step 3"
         return self.visible[4:8]
 
@@ -68,15 +77,21 @@ class PowerPlantMarket(object):
         self.draw()
 
     def shuffle(self, step3=False):
+        """When step three begins, we have to shuffle the deck"""
         self._did_step3_shuffle = True
         random.shuffle(self.deck)
 
     def discard_lowest(self):
+        """At the start of step 3, we discard the lowest power plant"""
         if self.visible:
             self.visible.pop(0)
         self.draw()
 
     def cycle_deck(self):
+        """At the end of the round
+        (in Step 1 and 2)
+        Remove the highest power plant and put it at the bottom of the deck
+        Then draw a new card"""
         if self.step_vars.step == 3:
             if self.visible:
                 self.visible.pop(0)
@@ -99,6 +114,7 @@ class PowerPlantMarket(object):
 
 
 class ResourceSubMarket(object):
+    """A Resource Sub Market manages a single resource"""
     def __init__(self, step_vars, resource, initial_supply, bucket_size, bucket_prices):
         self.resource = resource
         self.supply = initial_supply
@@ -113,9 +129,11 @@ class ResourceSubMarket(object):
 
     @property
     def resupply_rate(self):
+        """The resupply rate is a function of the current Step"""
         return self.step_vars.get_resupply_rate(self.resource)
 
     def current_price(self, supply=None):
+        """The price is a function of available resources"""
         if supply is None:
             supply = self.supply
         assert supply >= 0
@@ -125,11 +143,13 @@ class ResourceSubMarket(object):
         return self.bucket_prices[b]
 
     def price_for_n(self, n):
+        """How much to buy n resources?"""
         if n > self.supply:
             raise SupplyError()
         return sum(self.current_price(self.supply - i) for i in range(n))
 
     def resupply(self):
+        """Put more resources into the market"""
         resupply = min(self.resupply_rate, self.available)
         print 'restocking %s %s' % (resupply, self.resource)
         self.available -= resupply
@@ -138,12 +158,16 @@ class ResourceSubMarket(object):
         assert self.supply + self.available <= self.total
 
     def buy(self, n):
+        """When a player buys resources, decrease the supply
+        and return the cost"""
         cost = self.price_for_n(n)
         self.supply -= n
         assert self.supply >= 0
         return cost
 
     def restock(self, n):
+        """Add resources back into the pool,
+        but not into the market itself"""
         self.available += n
         assert self.available + self.supply <= self.total
 

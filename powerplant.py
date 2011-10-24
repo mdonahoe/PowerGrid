@@ -1,4 +1,8 @@
 class PowerPlant(object):
+    """Power plants create energy to power cities.
+    Each one consumes a type of resource,
+    and produces an amount of energy.
+    It also has a starting bid price."""
     def __init__(self, price, capacity, accepts, rate):
         self.capacity = capacity # number of cities it can power
         self.price = price # starting price for this powerplant
@@ -6,6 +10,7 @@ class PowerPlant(object):
         self.store = dict((r, 0) for r in accepts.split('/')) # current resource allotment
 
     def stock(self, resources):
+        """A resources to this power plant"""
         assert(len(resources)+sum(self.store.values()) <= self.rate*2)
         for r in resources:
             self._add_resource(r)
@@ -21,6 +26,8 @@ class PowerPlant(object):
         return dict((r, c) for r, c in rs.iteritems() if c)
 
     def can_add_resource(self, r):
+        """This plant accepts a certain type of resource
+        and can't fit more than 2 times its consumption rate"""
         return (r in self.store and sum(self.store.values())+1 <= self.rate*2)
 
     def _add_resource(self, r):
