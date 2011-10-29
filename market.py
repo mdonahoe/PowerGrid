@@ -13,8 +13,9 @@ class SupplyError(Exception):
 class PowerPlantMarket(object):
     """The power plant market manages the deck of
     power plant cards"""
-    def __init__(self, step_vars):
+    def __init__(self, step_vars, players):
         self.step_vars = step_vars
+        self.players = players  # needs for min power plant rule
         ps = [powerplant.PowerPlant(*args) for args in constants.powerplants]
         # Grab the $13 Eco plant
         special = ps.pop(10)
@@ -53,6 +54,7 @@ class PowerPlantMarket(object):
             self.shuffle(step3=True)
         self.visible.append(p)
         self.visible.sort()
+        self.discard_low_power_plants(self.players)  #hack
         assert len(self.visible) <= 8
         if self.deck and self.step_vars.step < 3:
             # Not true in step 3

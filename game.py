@@ -28,7 +28,7 @@ class Game(object):
             m = market.ResourceSubMarket(self.step_vars, *args)
             self.resource_market[name] = m
 
-        self.power_plant_market = market.PowerPlantMarket(self.step_vars)
+        self.power_plant_market = market.PowerPlantMarket(self.step_vars, self.players)
 
         self.grid = grid.Grid(colors, self.step_vars)
 
