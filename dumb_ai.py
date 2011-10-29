@@ -136,10 +136,12 @@ class PowerAI(player.Player):
         for plant in reversed(pp_market.actual()):
             if plant.hybrid or plant.price > self.money:
                 continue
-            print self.name, plant.price
             if len(self.power_plants) == 4 and plant.price < min([x.price for x in self.power_plants]):
+                print '%s decides these power plants are too cheap, and passes' % self.name
                 return None
+            print self.name, 'bids on', plant.price
             return plant.price, plant
+        print '%s passed' % self.name
         return None
 
     def get_bid(self,price,plant,bidders):
@@ -153,8 +155,9 @@ class PowerAI(player.Player):
             return 0    
         future = self.game.power_plant_market.future()[0]
         if price + 1 == future.price:
-            print 'outbid', self.name, plant.price
-            return price + 1
+            bid = price + 1
+            print '%s outbids with %s' %(self.name, bid)
+            return bid
         return 0
 
     def buy_resources(self, resource_market):
@@ -165,29 +168,30 @@ class PowerAI(player.Player):
             if n <= 0:
                 continue
             resource = plant.store.keys()[0]
-            print 'need %s %s' % (n, resource)
+            print '\tneed %s %s' % (n, resource)
             try:
                 price = resource_market[resource].price_for_n(n)
                 if price > self.money:
-                    print 'couldn\'t buy costs %s have %s' % (price, self.money)
+                    print '\tcouldn\'t buy costs %s have %s' % (price, self.money)
                     continue
                 resource_market[resource].buy(n)
                 self.money -= price
-                print 'bought for %s have %s' % (price, self.money)
+                print '\tbought for %s have %s' % (price, self.money)
                 plant.stock([resource] * n)
             except market.SupplyError:
-                print 'Market didn\'t have enough'
+                print '\tMarket didn\'t have enough'
                 continue
 
     def build_cities(self, grid):
         """Buy as many as you can power
         starting with cheapest and alphabetically"""
+        print '%s buying cities' % self.name
         while True:
             cities = grid.price_sorted(self)
-            print cities[:2], self.name, self.money
+            #print cities[:2], self.name, self.money
             if not cities:
-                print self.cities
-                print set([city.name for city in self.cities])-set(grid.cities.keys())
+                #print self.cities
+                #print set([city.name for city in self.cities])-set(grid.cities.keys())
                 return
             price, name = cities[0]
             city = grid.cities[name]
@@ -196,6 +200,8 @@ class PowerAI(player.Player):
             self.cities.append(city)
             city.buy(self)
             self.money -= price
+            print '\t%s for %s' % (name, price)
+        print '\t$%s left' % self.money
 
     def power_plants_to_use(self):
         """

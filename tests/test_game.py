@@ -4,7 +4,7 @@ import unittest
 
 import dumb_ai
 import game
-import powergrid_states
+import states2
 
 def Step3Shuffle(deck):
     plants = dict((plant.price, plant) for plant in deck)
@@ -13,26 +13,31 @@ def Step3Shuffle(deck):
 
 class TestGame(unittest.TestCase):
     """Test the entire game"""
+    def test_ai_battle(self):
+        for i in range(1):
+            players = [
+                dumb_ai.PowerAI('Steve'),
+                dumb_ai.DumbAI('Trip'),
+                dumb_ai.Outbidder('Goof'),
+            ]
+            self.assertEqual(game.play_game(players).name, 'Steve')
+
     def test_run_through(self):
         random.seed(1)
         p1 = dumb_ai.PowerAI('Matt')
         p2 = dumb_ai.PowerAI('Doug')
         g = game.Game([p1, p2], ['blue','yellow','purple'])
         random.shuffle = Step3Shuffle
-        print g.power_plant_market.deck
-        print g.grid.cities
         p1cities = set()
         p2cities = set()
-        def assert_state(game,state):
-            pprint.pprint(state, indent=2, depth=2, width=2)
+        def assert_state(game,state,winner):
+            if winner:
+                self.assertEqual(winner.name, state['winner'])
             rs = dict((k, m.supply) for k, m in game.resource_market.iteritems())
+            print 'Resources:', rs
             state_rs = dict((k,state[k]) for k in game.resource_market)
             p1cities.update(state['p1_new_cities'])
             p2cities.update(state['p2_new_cities'])
-            pprint.pprint(p1cities, indent=2, depth=2, width=2)
-            pprint.pprint(p2cities, indent=2, depth=2, width=2)
-            print p1
-            print p2
             self.assertEqual(rs,state_rs)
             self.assertEqual(state['p1_money'], p1.money)
             self.assertEqual(state['p1_plants'], [plant.price for plant in p1.power_plants])
@@ -42,13 +47,23 @@ class TestGame(unittest.TestCase):
             self.assertEqual(state['p2_plants'], [plant.price for plant in p2.power_plants])
             self.assertEqual(p2cities, set(c.name for c in p2.cities))
         win = None
-        states = powergrid_states.states
-        assert_state(g,states.pop(0))
-        i=0
-        while win is None:
-            print i
+        states = states2.states
+        current = states.pop(0)
+        i= -1
+        while 'run' in current:
             i += 1
+            print '-------End of TURN %s----------' % i
+            print 'Players'
+            for player in g.players:
+                print player.name
+                print player.power_plants
+                print '%s cities %s' % (len(player.cities), player.cities)
+                print '$%s' % player.money
+                print '~~~~~~~~~~~~'
+            print 'Market: %s' %  ', '.join(str(p.price) for p in g.power_plant_market.visible)
+            assert_state(g,current,win)
+            if win: break
+            print '--------START of TURN %s-------' % (i + 1)
+            current = states.pop(0)
             win = g.round()
-            assert_state(g,states.pop(0))
-        
-        
+            
