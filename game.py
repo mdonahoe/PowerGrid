@@ -133,7 +133,7 @@ class Game(object):
 
     def detect_game_end(self):
         """The game ends when 1 player has a certain number of 
-        power plants"""
+        cities"""
         for p in self.players:
             if len(p.cities) >= self.step_vars.cities_for_end:
                 break
@@ -142,9 +142,9 @@ class Game(object):
         # Now determine the winner
         # Who ever powers the most cities
         # Tie break on Elektro
-        rank = [(p.power_cities(), p.money, p) for p in self.players]
+        rank = [(p.powerable_cities(), p.money, len(p.cities), p) for p in self.players]
         rank.sort()
-        return rank[-1][2]
+        return rank[-1][3]
 
     def bureaucracy(self):
         """In bureaucracy, each player:

@@ -50,6 +50,9 @@ class Player(object):
         city_count = min(city_count, len(self.cities))
         self.money += constants.payments[city_count]
         return city_count
+    def powerable_cities(self):
+        capacity = sum([p.capacity for p in self.power_plants if p.can_power()])
+        return min(len(self.cities), capacity)
 
     def get_power_plant_by_price(self,price,power_plants):
         for p in power_plants:
