@@ -82,19 +82,15 @@ class Game(object):
     def buy_resources(self):
         """Each player buys resources in order"""
         for p in reversed(self.players):
-            p.buy_resources(self.resource_market)
+            rs = p.choose_resources_to_buy(self.resource_market)
+            if rs:
+                p.buy_resources(self.resource_market, rs)  # returns False if they couldn't do it
 
     def return_resources(self, rs):
         """When a player powers a plant, or discards a plant,
         he may have resources to return to the market"""
-        # rs is either a list of strings, or a dict
-        if type(rs)==type([]):
-            _rs = {}
-            for r in rs: _rs[r] = _rs.get(r, 0) + 1
-        else:
-            _rs = rs
 
-        for r,n in _rs.iteritems():
+        for r,n in rs.iteritems():
             if n == 0: continue
             self.resource_market[r].restock(n)
 

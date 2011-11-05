@@ -11,40 +11,41 @@ class PowerPlant(object):
 
     def stock(self, resources):
         """A resources to this power plant"""
-        assert(len(resources)+sum(self.store.values()) <= self.rate*2)
-        for r in resources:
-            self._add_resource(r)
+        assert sum(resources.values()) + sum(self.store.values()) <= self.rate * 2
+        for r, count in resources.iteritems():
+            self._add_resource(r, count)
 
     def better_stock(self, rs):
         """Stock as many resources from a dictionary as possible, return remaining"""
         for r in rs:
             if not rs[r] or r not in self.store:
                 continue
-            while rs[r] and self.can_add_resource(r):
-                self._add_resource(r)
+            while rs[r] and self.can_add_resource(r, 1):
+                self._add_resource(r, 1)
                 rs[r] -= 1
         return dict((r, c) for r, c in rs.iteritems() if c)
 
-    def can_add_resource(self, r):
+    def can_add_resource(self, r, count):
         """This plant accepts a certain type of resource
         and can't fit more than 2 times its consumption rate"""
-        return (r in self.store and sum(self.store.values())+1 <= self.rate*2)
+        return (r in self.store
+                and sum(self.store.values()) + count <= self.rate * 2)
 
-    def _add_resource(self, r):
-        assert(self.can_add_resource(r))
-        self.store[r] += 1
+    def _add_resource(self, r, count):
+        assert(self.can_add_resource(r, count))
+        self.store[r] += count
         return self.store[r]
 
-    def _remove_resource(self, r):
-        assert(self.store[r] > 0)
-        self.store[r] -= 1
+    def _remove_resource(self, r, count):
+        assert self.store[r] >= count
+        self.store[r] -= count
         return self.store[r]
 
     def consume(self, rs):
-        assert(self.can_power())
-        _rs = rs[:]  # always make a copy of lists you are popping
-        for _ in range(self.rate):
-            self._remove_resource(_rs.pop())
+        assert self.can_power()
+        assert sum(rs.values()) == self.rate
+        for r, count in rs.iteritems():
+            self._remove_resource(r, count)
 
     def can_power(self):
         return sum(self.store.values()) >= self.rate

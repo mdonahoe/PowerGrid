@@ -50,6 +50,7 @@ class Player(object):
         city_count = min(city_count, len(self.cities))
         self.money += constants.payments[city_count]
         return city_count
+
     def powerable_cities(self):
         capacity = sum([p.capacity for p in self.power_plants if p.can_power()])
         return min(len(self.cities), capacity)
@@ -63,6 +64,21 @@ class Player(object):
         for p in self.power_plants:
             if p.can_add_resource(r): return True
         return False
+
+    def buy_resources(self, resource_market, rs):
+        """You best be buying the right amount."""
+        price = 0
+        for r, count in rs.iteritems():
+            try:
+                price += resource_market[r].price_for_n(count)
+                if price > self.money:
+                    return False
+            except market.SupplyError:
+                return False
+        for r, count in rs.iteritems():
+            resource_market[r].buy(count)
+        self.money -= price
+        return True
 
     def buy_obvious_resources(self):
         # fill your power plants
@@ -109,6 +125,7 @@ class Player(object):
             # remove the required resources
             needs = p.resources_needed()
             r = p.store.keys()[0]
+            # TODO(matt): stock changed its inputs
             p.stock([r]*needs)
             rs_to_buy[r] = rs_to_buy[r] - needs
 
@@ -140,7 +157,7 @@ class Player(object):
     def get_bid(self,price,plant,bidders):
         assert(False)
 
-    def buy_resources(self, resource_market):
+    def choose_resources_to_buy(self, resource_market):
         assert(False)
 
     def build_cities(self, grid):
@@ -175,10 +192,9 @@ class HumanPlayer(Player):
             choice=raw_input(':')
             if choice in choices: return choice
             print 'no match'
-            """doug ducks"""
 
     def redistribute_resources(self,rs):
-        discards = []
+        discards = {}
         for r in rs:
             print 'Choose a power plant for this %s' % r
             for p in self.power_plants:
@@ -187,9 +203,9 @@ class HumanPlayer(Player):
             print '0 to discard'
             choice = self.get_power_plant(True)
             if choice:
-                choice.stock([r])
+                choice.stock({r: 1})
             else:
-                discards.append(r)
+                discards[r] = discards.get(r, 0) + 1
         return discards
 
     def initial_bid(self, pp_market, bidders):
@@ -232,7 +248,7 @@ class HumanPlayer(Player):
             bid = self.money
         return bid
 
-    def buy_resources(self, resource_market):
+    def choose_resources_to_buy(self, resource_market):
         print 'Resource Market'
         for r,m in self.game.resource_market.iteritems():
             print '\t %s' % m
@@ -285,14 +301,14 @@ class HumanPlayer(Player):
             yn = raw_input('power y/n ?').lower()
             if yn=='y':
                 if p.obvious_power():
-                    rs = [p.store.keys()[0]]*p.rate
+                    rs = {p.store.keys()[0]: p.rate}
                 else:
-                    rs = []
+                    rs = {}
                     for r in p.store:
                         print 'Amount of %s to use' % r
                         n = int(raw_input(':'))
-                        rs.extend([r]*min(n,p.store[r]))
-                if len(rs) < p.rate:
+                        rs[r] = min(n, p.store[r])
+                if sum(rs.values()) < p.rate:
                     print 'not enough. dumbass'
                 else:
                     prs.append((p,rs))
