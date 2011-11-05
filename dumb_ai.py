@@ -11,6 +11,7 @@ class DumbAI(player.Player):
         return rs
 
     def initial_bid(self, pp_market, bidders):
+        """Buy the cheapest, if we can afford it"""
         actual = pp_market.actual()
         if not actual:
             return None
@@ -20,12 +21,15 @@ class DumbAI(player.Player):
         return None
 
     def get_bid(self, price, plant, bidders):
+        """never outbid"""
         return None
 
     def buy_resources(self, resource_market):
+        """never buy resources"""
         return None
 
     def build_cities(self, grid):
+        """buy the cheapest city we can afford"""
         cities = grid.price_sorted(self)
         if not cities:
             return
@@ -37,6 +41,7 @@ class DumbAI(player.Player):
             self.cities.append(cheapest)
 
     def power_plants_to_use(self):
+        """never power a plant (we havent bought an resources anyway"""
         return []
 
 
@@ -53,6 +58,7 @@ class BareMinimumAI(DumbAI):
         return super(BareMinimumAI, self).initial_bid(pp_market, bidders)
 
     def buy_resources(self, resource_market):
+        """Buy enough resources to power our only plant"""
         if not self.power_plants:
             return None
         plant = self.power_plants[0]
@@ -64,11 +70,10 @@ class BareMinimumAI(DumbAI):
         plant.stock([resource]*n)
 
     def build_cities(self, grid):
-        if self.cities:
-            return
         super(BareMinimumAI, self).build_cities(grid)
 
     def power_plants_to_use(self):
+        """power all our plants... this might use more resources than the plant has"""
         return [(p, p.rate * [p.store.keys()[0]]) for p in self.power_plants]
 
 
@@ -78,6 +83,7 @@ class Outbidder(DumbAI):
         if price < self.money:
             return price + 1
         return None
+
 
 class BasicAI(DumbAI):
     """Buys a new power plant, resources, and a city every round"""
@@ -91,6 +97,7 @@ class BasicAI(DumbAI):
             plant.stock([resource]*n)
     def power_plants_to_use(self):
         return [(p, p.rate * [p.store.keys()[0]]) for p in self.power_plants]
+
 
 class PowerAI(player.Player):
     """
@@ -152,7 +159,7 @@ class PowerAI(player.Player):
         if price >= self.money:
             return 0
         if self.game.step_vars.step == 3:
-            return 0    
+            return 0
         future = self.game.power_plant_market.future()[0]
         if price + 1 == future.price:
             bid = price + 1
@@ -218,7 +225,7 @@ class PowerAI(player.Player):
                 powered += plant.capacity
         for plant in reversed(self.power_plants):
             if powered >= cities:
-                print self.name, prs 
+                print self.name, prs
                 return prs
             if 'eco' in plant.store:
                 continue
@@ -226,6 +233,6 @@ class PowerAI(player.Player):
                 continue
             powered += plant.capacity
             prs.append((plant, [plant.store.keys()[0]] * plant.rate))
-        print self.name, prs 
+        print self.name, prs
         return prs
 
