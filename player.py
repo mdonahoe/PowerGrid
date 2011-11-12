@@ -8,13 +8,16 @@ class Player(object):
 
     def __init__(self, name):
         self.name = name
+        self.clear()
+
+    def __str__(self):
+        return '%s $%s %s %s' % (self.name, self.money, str(self.cities), str(self.power_plants))
+
+    def clear(self):
         self.money = 50
         self.power_plants = []
         self.cities = []
         self.game = None  # set by game
-
-    def __str__(self):
-        return '%s $%s %s %s' % (self.name, self.money, str(self.cities), str(self.power_plants))
 
     def buy_power_plant(self,plant,price):
         self.money -= price

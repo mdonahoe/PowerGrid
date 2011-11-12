@@ -171,8 +171,20 @@ def play_game(players=None):
         win = g.round()
     return win
 
+def compete(players, nrounds):
+    wins = dict((player.name, 0) for player in players)
+    for _ in range(nrounds):
+        for player in players: player.clear()
+        winner = play_game(players)
+        wins[winner.name] += 1
+    return wins
 
 if __name__ == '__main__':
+    players = [dumb_ai.PowerAI('Power'), dumb_ai.SuperPowerAI('SuperPower')]
+    import pprint
+    pprint.pprint(compete(players, 100), width=100)
+    import sys
+    sys.exit(0)
     for i in range(100):
         players = [
             dumb_ai.DumbAI('Bill'),

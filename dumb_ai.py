@@ -74,7 +74,7 @@ class BareMinimumAI(DumbAI):
 
     def power_plants_to_use(self):
         """power all our plants... this might use more resources than the plant has"""
-        return [(p, {p.store.keys()[0], p.rate}) for p in self.power_plants if p.store.values()[0] >= p.rate]
+        return [(p, {p.store.keys()[0]: p.rate}) for p in self.power_plants if p.store.values()[0] >= p.rate]
 
 
 class Outbidder(DumbAI):
@@ -97,7 +97,7 @@ class BasicAI(DumbAI):
             plant.stock({resource: n})
 
     def power_plants_to_use(self):
-        return [(p, {p.store.keys()[0], p.rate}) for p in self.power_plants if p.store.values()[0] >= p.rate]
+        return [(p, {p.store.keys()[0]: p.rate}) for p in self.power_plants if p.store.values()[0] >= p.rate]
 
 
 class PowerAI(player.Player):
@@ -155,6 +155,8 @@ class PowerAI(player.Player):
     def get_bid(self,price,plant,bidders):
         """Bid only when the cheapest future plant
         is the same price as plant.price + 1"""
+        if plant.hybrid:
+            return 0
         if price != plant.price:
             return 0
         if price >= self.money:
@@ -175,7 +177,7 @@ class PowerAI(player.Player):
             n = plant.resources_needed()
             if n <= 0:
                 continue
-            resource = plant.store.keys()[0]
+            resource = sorted(plant.store.keys())[0]
             print '\tneed %s %s' % (n, resource)
             if self.buy_resources(resource_market, {resource: n}):
                 plant.stock({resource: n})
@@ -224,6 +226,95 @@ class PowerAI(player.Player):
                 continue
             powered += plant.capacity
             prs.append((plant, {plant.store.keys()[0]: plant.rate}))
+        print self.name, prs
+        return prs
+
+class SuperPowerAI(PowerAI):
+    """
+    Bidding:
+        Buy most expensive power plant, if we are at capacity
+        In get_bid, bid $1 more than the minimum price...
+            if the cheapest powerplant in the future market
+            costs that much
+
+    Resources:
+        Buy resources to power all power plants, in decreasing order
+
+    Cities:
+        Buy as many as you can power
+        Greedy on price, name
+
+    Powering:
+        Burn as many powerplants as necessary
+        Start with eco
+        then most expensive
+
+    Reallocation:
+        Put as many as you can on the most expensive
+
+    """
+
+    def initial_bid(self, pp_market, bidders):
+        """Bid on the highest non-hybrid"""
+        print 'actual market: ', [plant.price for plant in pp_market.actual()]
+        if len(self.cities) < self.total_capacity():
+            return None
+        for plant in reversed(pp_market.actual()):
+            if plant.price > self.money:
+                continue
+            if len(self.power_plants) == 4 and plant.price < min([x.price for x in self.power_plants]):
+                print '%s decides these power plants are too cheap, and passes' % self.name
+                return None
+            print self.name, 'bids on', plant.price
+            return plant.price, plant
+        print '%s passed' % self.name
+        return None
+
+    def get_bid(self,price,plant,bidders):
+        """Bid only when the cheapest future plant
+        is the same price as plant.price + 1"""
+        if len(self.cities) < self.total_capacity():
+            return 0
+        if price != plant.price:
+            return 0
+        if price >= self.money:
+            return 0
+        if self.game.step_vars.step == 3:
+            return 0
+        future = self.game.power_plant_market.future()[0]
+        if price + 1 == future.price:
+            bid = price + 1
+            print '%s outbids with %s' %(self.name, bid)
+            return bid
+        return 0
+
+    def power_plants_to_use(self):
+        """
+        Power all ecos
+        power from most expensive down
+        until we can power all cities
+        """
+        prs = []
+        powered = 0
+        cities = len(self.cities)
+        for plant in self.power_plants:
+            if 'eco' in plant.store:
+                prs.append((plant, {}))
+                powered += plant.capacity
+        for plant in reversed(self.power_plants):
+            if powered >= cities:
+                print self.name, prs
+                return prs
+            if 'eco' in plant.store:
+                continue
+            if not plant.can_power():
+                continue
+            powered += plant.capacity
+            rs = {}
+            for r in sorted(plant.store.keys()):
+                # take as much as we need/have
+                rs[r] = min(plant.rate - sum(rs.values()), plant.store[r])
+            prs.append((plant, rs))
         print self.name, prs
         return prs
 

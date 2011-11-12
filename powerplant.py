@@ -17,7 +17,7 @@ class PowerPlant(object):
 
     def better_stock(self, rs):
         """Stock as many resources from a dictionary as possible, return remaining"""
-        for r in rs:
+        for r in sorted(rs.keys()):
             if not rs[r] or r not in self.store:
                 continue
             while rs[r] and self.can_add_resource(r, 1):
