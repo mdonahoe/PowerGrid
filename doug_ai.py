@@ -1,5 +1,7 @@
 import dumb_ai
 import player
+import copy
+
 
 def get_ai(ai):
     if ai == 'DougAI':
@@ -60,13 +62,12 @@ class DougAI(player.SafePlayer):
         starting with cheapest and alphabetically"""
         print '%s buying cities' % self.name
         other_player = self.other_player()
-        cities = grid.price_sorted(self)
         if (len(other_player.cities) <= len(self.cities)
             and sum(city[0] for city in cities) > self.money):
             return 
 
         while True:
-            cities = grid.price_sorted(self)
+            cities = grid.price_sorted(self.cities)
             #print cities[:2], self.name, self.money
             if not cities:
                 #print self.cities

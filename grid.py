@@ -39,6 +39,7 @@ class Grid(object):
     def __init__(self, colors, step_vars):
         #get a list of cities for this game
         cities = []
+        self.step_vars = step_vars
         for c in colors:
             cities.extend(constants.colors[c])
 
@@ -87,13 +88,13 @@ class Grid(object):
         cs = self._costs(owned_cities)
         return cs[cityname] + city.price()
 
-    def price_sorted(self, player):
+    def price_sorted(self, cities):
         """Return a list of cheapest cities"""
-        costs = self._costs(player.cities)
+        costs = self._costs(cities)
         prices = []
         for name, cost in costs.iteritems():
             city = self.cities[name]
-            if not city.can_buy(player):
+            if city in cities or len(city.spots) >= self.step_vars.step:
                 continue
             prices.append((cost + city.price(), name))
         prices.sort()

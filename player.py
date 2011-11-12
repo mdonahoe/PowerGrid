@@ -330,7 +330,7 @@ class HumanPlayer(Player):
         print 'Build cities %s' % self.name
         while 1:
             available = []
-            for price,city in grid.price_sorted(self):
+            for price,city in grid.price_sorted(self.cities):
                 available.append(city)
                 print '\t$%s %s' %(price,city)
             name = raw_input('city name or (q)uit:')

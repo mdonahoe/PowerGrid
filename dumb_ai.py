@@ -30,7 +30,7 @@ class DumbAI(player.Player):
 
     def build_cities(self, grid):
         """buy the cheapest city we can afford"""
-        cities = grid.price_sorted(self)
+        cities = grid.price_sorted(self.cities)
         if not cities:
             return
         (price, cheapest) = cities[0]
@@ -185,7 +185,7 @@ class PowerAI(player.Player):
         starting with cheapest and alphabetically"""
         print '%s buying cities' % self.name
         while True:
-            cities = grid.price_sorted(self)
+            cities = grid.price_sorted(self.cities)
             #print cities[:2], self.name, self.money
             if not cities:
                 #print self.cities

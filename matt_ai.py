@@ -49,7 +49,7 @@ class MattAI(player.SafePlayer):
     def _build_cities(self, grid):
         """Buy as many cities as you can power"""
         while True:
-            cities = grid.price_sorted(self)
+            cities = grid.price_sorted(self.cities)
             #print cities[:2], self.name, self.money
             if not cities:
                 #print self.cities
