@@ -1,8 +1,14 @@
+import pprint
+import random
+import sys
+
 import auction
 import constants
+import doug_ai
 import dumb_ai
 import grid
 import market
+import matt_ai
 import player
 import powerplant
 import step_vars
@@ -180,20 +186,6 @@ def compete(players, nrounds):
     return wins
 
 if __name__ == '__main__':
-    players = [dumb_ai.PowerAI('Power'), dumb_ai.SuperPowerAI('SuperPower')]
-    import pprint
+    random.seed(0)
+    players = [matt_ai.get_ai(sys.argv[1]), doug_ai.get_ai(sys.argv[2])]
     pprint.pprint(compete(players, 100), width=100)
-    import sys
-    sys.exit(0)
-    for i in range(100):
-        players = [
-            dumb_ai.DumbAI('Bill'),
-            dumb_ai.BareMinimumAI('Ted'),
-            dumb_ai.Outbidder('Steve'),
-            dumb_ai.BasicAI('Vern')
-        ]
-        try:
-            print play_game(players)
-        except market.SupplyError:
-            print 'SupplyError'
-        print '-'*40

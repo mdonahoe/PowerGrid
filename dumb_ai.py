@@ -36,9 +36,7 @@ class DumbAI(player.Player):
         (price, cheapest) = cities[0]
         cheapest = grid.cities[cheapest]
         if price <= self.money:
-            self.money -= price
-            cheapest.buy(self)
-            self.cities.append(cheapest)
+            self.buy_city(cheapest, price)
 
     def power_plants_to_use(self):
         """never power a plant (we havent bought an resources anyway"""
@@ -197,9 +195,7 @@ class PowerAI(player.Player):
             city = grid.cities[name]
             if price > self.money or len(self.cities) >= self.total_capacity():
                 break
-            self.cities.append(city)
-            city.buy(self)
-            self.money -= price
+            self.buy_city(city, price)
             print '\t%s for %s' % (name, price)
         print '\t$%s left' % self.money
 

@@ -19,6 +19,11 @@ class Player(object):
         self.cities = []
         self.game = None  # set by game
 
+    def buy_city(self, city, price):
+        self.cities.append(city)
+        city.buy(self)
+        self.money -= price
+
     def buy_power_plant(self,plant,price):
         self.money -= price
         assert self.money >= 0
@@ -150,14 +155,14 @@ class Player(object):
     def choose_power_plant_to_discard(self):
         assert(False)
 
-    def redistribute_resources(self,rs):
+    def redistribute_resources(self, rs):
         """move resources to other power plants and return overflow"""
         assert(False)
 
     def initial_bid(self, pp_market, bidders):
         assert(False)
 
-    def get_bid(self,price,plant,bidders):
+    def get_bid(self, price, plant, bidders):
         assert(False)
 
     def choose_resources_to_buy(self, resource_market):
@@ -170,6 +175,55 @@ class Player(object):
         assert(False)
 
 
+class SafePlayer(Player):
+    def choose_power_plant_to_discard(self):
+        try:
+            return self._choose_power_plant_to_discard()
+        except:
+            print '%s is really bad at choosing power plants to discard' % self.name 
+            return self.power_plants[0]
+
+    def redistribute_resources(self, rs):
+        try:
+            return self._redistribute_resources(rs)
+        except:
+            print '%s is really bad at redistributing resources' % self.name 
+            return {}
+
+    def initial_bid(self, pp_market, bidders):
+        try:
+            return self._initial_bid(pp_market, bidders)
+        except:
+            print '%s is really bad at initial bidding' % self.name 
+            return None
+
+    def get_bid(self, price, plant, bidders):
+        try:
+            return self._get_bid(price, plant, bidders)
+        except:
+            print '%s is really bad at later bidding' % self.name 
+            return 0
+
+    def choose_resources_to_buy(self, resource_market):
+        try:
+            return self._choose_resources_to_buy(resource_market)
+        except:
+            print '%s is really bad at choosing resources to bid' % self.name 
+
+    def build_cities(self, grid):
+        try:
+            return self._build_cities(grid)
+        except:
+            print '%s is really bad at building cities' % self.name 
+
+    def power_plants_to_use(self):
+        try:
+            return self._power_plants_to_use()
+        except:
+            print '%s is really bad at choosing power plants to use' % self.name 
+            return []
+
+        
 class HumanPlayer(Player):
     def choose_power_plant_to_discard(self):
         print "Discard a power plant"
