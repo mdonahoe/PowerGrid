@@ -17,17 +17,16 @@ class MattAI(player.SafePlayer):
         """move resources to other power plants and return overflow"""
         for plant in reversed(self.power_plants):
             rs = plant.better_stock(rs)
-
         return rs
 
     def _initial_bid(self, pp_market, bidders):
-        """bid on the plant with the lowest $/city"""
+        """Only buy if it has high enough capacity"""
         if len(self.cities) < self.total_capacity():
             return None
         for plant in reversed(pp_market.actual()):
             if plant.price > self.money:
                 continue
-            if len(self.power_plants) == 4 and plant.price < min([x.price for x in self.power_plants]):
+            if len(self.power_plants) == 4 and plant.price < min([x.price for x in self.power_plants]) or self.power_plants and plant.capacity < 4:
                 return None
             return plant.price, plant
         return None
@@ -35,14 +34,13 @@ class MattAI(player.SafePlayer):
     def _get_bid(self,price,plant,bidders):
         return 0
 
-    def _buy_resources(self, resource_market):
+    def _choose_resources_to_buy(self, resource_market):
         """Buy enough to power all your plants"""
         for plant in reversed(self.power_plants):
             n = plant.resources_needed()
             if n <= 0:
                 continue
             resource = sorted(plant.store.keys())[0]
-            print '\tneed %s %s' % (n, resource)
             if self.buy_resources(resource_market, {resource: n}):
                 plant.stock({resource: n})
 
@@ -50,18 +48,13 @@ class MattAI(player.SafePlayer):
         """Buy as many cities as you can power"""
         while True:
             cities = grid.price_sorted(self.cities)
-            #print cities[:2], self.name, self.money
             if not cities:
-                #print self.cities
-                #print set([city.name for city in self.cities])-set(grid.cities.keys())
                 return
             price, name = cities[0]
             city = grid.cities[name]
             if price > self.money or len(self.cities) >= self.total_capacity():
                 break
             self.buy_city(city, price)
-            print '\t%s for %s' % (name, price)
-        print '\t$%s left' % self.money
 
     def _power_plants_to_use(self):
         """
@@ -78,7 +71,6 @@ class MattAI(player.SafePlayer):
                 powered += plant.capacity
         for plant in reversed(self.power_plants):
             if powered >= cities:
-                print self.name, prs
                 return prs
             if 'eco' in plant.store:
                 continue
@@ -90,6 +82,5 @@ class MattAI(player.SafePlayer):
                 # take as much as we need/have
                 rs[r] = min(plant.rate - sum(rs.values()), plant.store[r])
             prs.append((plant, rs))
-        print self.name, prs
         return prs
 
