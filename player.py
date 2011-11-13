@@ -19,6 +19,11 @@ class Player(object):
         self.cities = []
         self.game = None  # set by game
 
+    def get_state(self):
+        return {'money': self.money,
+                'pp_capacity': sum(pp.capacity for pp in self.power_plants),
+                'cities': len(self.cities)}
+
     def buy_city(self, city, price):
         self.cities.append(city)
         city.buy(self)

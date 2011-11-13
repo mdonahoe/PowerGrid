@@ -1,6 +1,7 @@
+import operator
+
 import dumb_ai
 import player
-import copy
 
 
 def get_ai(ai):
@@ -13,25 +14,28 @@ class DougAI(player.SafePlayer):
 
     def _choose_power_plant_to_discard(self):
         """Always remove the cheapest"""
-        return self.power_plants[0]
+        capacity_sorted = sorted(self.power_plants, key=operator.attrgetter('capacity', 'price'))
+        return capacity_sorted[0]
 
     def _redistribute_resources(self, rs):
         for plant in reversed(self.power_plants):
             rs = plant.better_stock(rs)
-
         return rs
 
     def _initial_bid(self, pp_market, bidders):
         """Bid on the highest non-hybrid"""
         print 'actual market: ', [plant.price for plant in pp_market.actual()]
-        if len(self.cities) < self.total_capacity():
-            return None
-        for plant in reversed(pp_market.actual()):
+        maxed_out = len(self.cities) < self.total_capacity()
+        reverse_capacity_sorted = sorted(pp_market.actual(), key=operator.attrgetter('capacity', 'price'), reverse=True)
+        owned_capacity_sorted = sorted(self.power_plants, key=operator.attrgetter('capacity', 'price'))
+        for plant in reverse_capacity_sorted:
             if plant.price > self.money:
                 continue
-            if len(self.power_plants) == 4 and plant.price < min([x.price for x in self.power_plants]):
-                print '%s decides these power plants are too cheap, and passes' % self.name
+            if len(self.power_plants) == 4 and owned_capacity_sorted[0].capacity > plant.capacity:
                 return None
+            if maxed_out and owned_capacity_sorted[0] - plant.capacity < 1:
+                return None
+                
             print self.name, 'bids on', plant.price
             return plant.price, plant
         print '%s passed' % self.name
@@ -62,9 +66,16 @@ class DougAI(player.SafePlayer):
         starting with cheapest and alphabetically"""
         print '%s buying cities' % self.name
         other_player = self.other_player()
-        if (len(other_player.cities) <= len(self.cities)
-            and sum(city[0] for city in cities) > self.money):
-            return 
+        total_price = 0
+        bought_cities = self.cities[:]
+        while True:
+            cities = grid.price_sorted(bought_cities)
+            if not cities: break
+            total_price += cities[0][0]
+            bought_cities.append(grid.cities[cities[0][1]])
+        if ((len(bought_cities) != 21 or total_price > self.money)
+            and len(other_player.cities) <= len(self.cities)):
+            return
 
         while True:
             cities = grid.price_sorted(self.cities)

@@ -11,6 +11,7 @@ import market
 import matt_ai
 import player
 import powerplant
+import stateviz
 import step_vars
 
 
@@ -37,9 +38,14 @@ class Game(object):
         self.power_plant_market = market.PowerPlantMarket(self.step_vars, self.players)
 
         self.grid = grid.Grid(colors, self.step_vars)
+        self.stateviz = stateviz.StateViz([p.name for p in self.players], self.resource_market.keys())
 
+    def add_stateviz(self):
+        self.stateviz.add_state(dict((p.name, p.get_state()) for p in self.players),
+                                dict((name, r.supply) for name, r in self.resource_market.iteritems()))
     def round(self):
         """Process a single round in the game and return a win, if any"""
+        self.add_stateviz()
         self.determine_player_order()
 
         turn_auction = auction.Auction(self.players, self.power_plant_market)
@@ -53,6 +59,7 @@ class Game(object):
         self.detect_step_three()
         winner = self.detect_game_end()
         if winner:
+            self.add_stateviz()
             return winner
         self.bureaucracy()
         self.detect_step_three()
@@ -175,6 +182,8 @@ def play_game(players=None):
     g = Game(players, colors)
     while not win:
         win = g.round()
+    print win
+    #g.stateviz.plot_states()
     return win
 
 def compete(players, nrounds):
