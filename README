@@ -1,8 +1,10 @@
 Next steps:
-1. Play a new game iteratively. Current test game seems hosed.
-    a. use data to compare against full game test.
-2. Fix AIs to check for SupplyErrors when buying
-3. Make an AI that will beat BasicAI
+1. buy enough resources to power as many cities as possible to have at the end of your turn
+2. buy cities optimally (buy as many, as soon as possible VS buy expensive first)
+3. bid on powerplants intelligently
+4. plot test runs
+5. better command-line options
+
 
 POWERGRID:
 We suspect that this game is mostly about saving a few dollars here and there,

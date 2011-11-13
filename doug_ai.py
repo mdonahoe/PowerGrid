@@ -46,16 +46,8 @@ class DougAI(player.SafePlayer):
 
     def _choose_resources_to_buy(self, resource_market):
         """Buy resources for all powerplants, decreasing"""
-        print '%s buying resources' % self.name
-        for plant in reversed(self.power_plants):
-            n = plant.resources_needed()
-            if n <= 0:
-                continue
-            resource = sorted(plant.store.keys())[0]
-            print '\tneed %s %s' % (n, resource)
-            if self.buy_resources(resource_market, {resource: n}):
-                plant.stock({resource: n})
-
+        self.buy_obvious_resources()
+        
     def other_player(self):
         for player in self.game.players:
             if player != self:
