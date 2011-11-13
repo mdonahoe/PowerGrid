@@ -1,3 +1,5 @@
+import sys
+import traceback
 import choose
 import constants
 import market
@@ -106,26 +108,28 @@ class Player(object):
                 for s in scenarios:
                     new_s = dict(s)
                     for r in o:
-                        new_s[r] = new_s.get(r,0) + 1
+                        new_s[r] = new_s.get(r, 0) + 1
                     new_scenarios.append(new_s)
             scenarios = new_scenarios
-
+        print 'SCENARIOS: %s' % scenarios
         # now we have dicts or different groupings of resources we could buy to power our plants.
         # find out how much they cost and return the cheapest one.
         costs = []
         rm = self.game.resource_market
         for rs_to_buy in scenarios:
             try:
-                cost = sum([rm[r].cost_for_n(amt) for r, amt in rs_to_by.iteritems()])
+                cost = sum([rm[r].price_for_n(amt) for r, amt in rs_to_buy.iteritems()])
+                costs.append((cost, rs_to_buy))
             except market.SupplyError:
                 # ran out of resources
                 continue
-            costs.append((cost, rs_to_buy))
-        costs.sort()
 
+        costs.sort()
+        print costs
+        # costs could be empty, potential error
         cost, rs_to_buy = costs[0]
         # now actually buy it
-        for r, amt in rs_to_buy: rm[r].buy(amt)
+        for r, amt in rs_to_buy.iteritems(): rm[r].buy(amt)
 
         # now we need to allocate resources
         # we could just keep track of how this scenario was formed
@@ -133,28 +137,17 @@ class Player(object):
 
         obvious = [p for p in plants if not p.hybrid]
         hybrid = [p for p in plants if p.hybrid]
+        plants = obvious + hybrid  # allocate to non-hybrids first
+        rs = dict(rs_to_buy)
+        for p in plants:
+            # each plant takes only what it needs and returns the remainder
+            print p
+            rs = p.better_stock(rs, conserve=True)
+            print p
+            print '---'
+            assert p.can_power(), 'didnt buy enough resources'
 
-        for p in obvious:
-            # remove the required resources
-            needs = p.resources_needed()
-            r = p.store.keys()[0]
-            # TODO(matt): stock changed its inputs
-            p.stock([r]*needs)
-            rs_to_buy[r] = rs_to_buy[r] - needs
-
-        # now do the non-obvious
-        # This assumes only coal/oil
-        for p in hybrid:
-            needs = p.resources_needed()
-            a,b = self.store.keys()
-            while needs and rs_to_buy.get(a,0):
-                rs_to_buy[a]-=1
-                needs-=1
-            while needs and rs_to_buy.get(b,0):
-                rs_to_buy[b]-=1
-                needs-=1
-
-        assert sum(rs_to_buy.values())==0, 'Warning: leftover resources'
+        assert sum(rs.values())==0, 'Warning: leftover resources'
 
     #SUBCLASS STUFF
     def choose_power_plant_to_discard(self):
@@ -212,8 +205,9 @@ class SafePlayer(Player):
     def choose_resources_to_buy(self, resource_market):
         try:
             return self._choose_resources_to_buy(resource_market)
-        except:
-            print '%s is really bad at choosing resources to bid' % self.name 
+        except Exception, e:
+            print '%s is really bad at choosing resources to bid: %s' % (self.name, e) 
+            traceback.print_tb(sys.exc_info()[2])
 
     def build_cities(self, grid):
         try:

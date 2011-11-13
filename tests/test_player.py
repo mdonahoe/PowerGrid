@@ -1,5 +1,6 @@
 import unittest
 
+import game
 import player
 
 class TestPlayer(unittest.TestCase):
@@ -26,4 +27,10 @@ class TestPlayer(unittest.TestCase):
         self.assertEquals(['plant 2', 'plant 3', 'plant 4', 'plant 5'],
                           self.player.power_plants)
 
-    
+    def test_buy_obvious_resources(self):
+        # create some powerplants
+        g = game.Game([self.player, player.Player('asdf')])
+        
+        self.player.power_plants = g.power_plant_market.visible[:4] 
+        self.player.buy_obvious_resources()
+        

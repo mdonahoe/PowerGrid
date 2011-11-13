@@ -15,12 +15,14 @@ class PowerPlant(object):
         for r, count in resources.iteritems():
             self._add_resource(r, count)
 
-    def better_stock(self, rs):
+    def better_stock(self, rs, conserve=False):
         """Stock as many resources from a dictionary as possible, return remaining"""
         for r in sorted(rs.keys()):
             if not rs[r] or r not in self.store:
                 continue
             while rs[r] and self.can_add_resource(r, 1):
+                if conserve and self.can_power():  # only take what you need
+                    break
                 self._add_resource(r, 1)
                 rs[r] -= 1
         return dict((r, c) for r, c in rs.iteritems() if c)

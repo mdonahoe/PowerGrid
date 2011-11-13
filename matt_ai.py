@@ -36,13 +36,7 @@ class MattAI(player.SafePlayer):
 
     def _choose_resources_to_buy(self, resource_market):
         """Buy enough to power all your plants"""
-        for plant in reversed(self.power_plants):
-            n = plant.resources_needed()
-            if n <= 0:
-                continue
-            resource = sorted(plant.store.keys())[0]
-            if self.buy_resources(resource_market, {resource: n}):
-                plant.stock({resource: n})
+        player.Player.buy_obvious_resources(self)
 
     def _build_cities(self, grid):
         """Buy as many cities as you can power"""

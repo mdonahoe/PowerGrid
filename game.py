@@ -22,7 +22,7 @@ class Game(object):
 
     Each round is played by calling .round()
     """
-    def __init__(self, players, colors):
+    def __init__(self, players, colors=('yellow', 'purple', 'blue')):
         """Create the game"""
         self.players = players
         for p in players:
